@@ -20,8 +20,8 @@ import (
 	"errors"
 	"os"
 
-	utils "IBM/secret-common-lib/pkg/utils"
-	sp "IBM/secret-utils-lib/pkg/secret_provider"
+	utils "github.com/IBM/secret-common-lib/pkg/utils"
+	sp "github.com/IBM/secret-utils-lib/pkg/secret_provider"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"

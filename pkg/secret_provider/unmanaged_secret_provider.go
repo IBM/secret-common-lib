@@ -17,7 +17,7 @@
 package secret_provider
 
 import (
-	auth "IBM/secret-utils-lib/pkg/authenticator"
+	auth "github.com/IBM/secret-utils-lib/pkg/authenticator"
 
 	"go.uber.org/zap"
 )

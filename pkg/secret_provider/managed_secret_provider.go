@@ -22,7 +22,7 @@ import (
 	"net"
 	"time"
 
-	sp "IBM/secret-utils-lib/secretprovider"
+	sp "github.com/IBM/secret-utils-lib/secretprovider"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
