@@ -1,4 +1,4 @@
-module IBM/secret-common-lib
+module github.com/IBM/secret-common-lib
 
 go 1.16
 
