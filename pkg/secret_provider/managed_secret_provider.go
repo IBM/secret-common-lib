@@ -40,7 +40,9 @@ type ManagedSecretProvider struct {
 // newManagedSecretProvider ...
 func newManagedSecretProvider(logger *zap.Logger) (*ManagedSecretProvider, error) {
 	logger.Info("Initializing managed secret provider, Checking if connection can be established to secret sidecar")
-	_, err := grpc.Dial(*endpoint, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithDialer(unixConnect))
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+        defer cancel()
+	_, err := grpc.DialContext(ctx, *endpoint, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithDialer(unixConnect))
 	if err != nil {
 		logger.Error("Error establishing grpc connection to secret sidecar", zap.Error(err))
 		return nil, err
