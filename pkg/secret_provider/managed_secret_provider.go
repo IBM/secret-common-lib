@@ -29,7 +29,7 @@ import (
 )
 
 var (
-	endpoint = flag.String("managed-secret-provider", "/csi/provider.sock", "Storage secret sidecar endpoint")
+	endpoint = flag.String("sidecarEndpoint", "/csi/provider.sock", "Storage secret sidecar endpoint")
 )
 
 // ManagedSecretProvider ...
