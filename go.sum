@@ -3,8 +3,8 @@ cloud.google.com/go v0.34.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMT
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/IBM/go-sdk-core/v5 v5.9.1 h1:06pXbD9Rgmqqe2HA5YAeQbB4eYRRFgIoOT+Kh3cp1zo=
 github.com/IBM/go-sdk-core/v5 v5.9.1/go.mod h1:axE2JrRq79gIJTjKPBwV6gWHswvVptBjbcvvCPIxARM=
-github.com/IBM/secret-utils-lib v0.0.0-20220201130204-b30e719cc0e7 h1:t4c23MWX8TL7HGOJqn4zJAGwEYWeaS7isEBKfPDYoAc=
-github.com/IBM/secret-utils-lib v0.0.0-20220201130204-b30e719cc0e7/go.mod h1:dOyw49pblyONRzULw3XN/SDwtt8Kg3+JFC/SFRIDHt0=
+github.com/IBM/secret-utils-lib v0.0.0-20220204063816-df0f9e077a8a h1:PGvk4w6oO79Tsle59eWLvaWVKrwQlVlZSsN4tl/gbpA=
+github.com/IBM/secret-utils-lib v0.0.0-20220204063816-df0f9e077a8a/go.mod h1:dOyw49pblyONRzULw3XN/SDwtt8Kg3+JFC/SFRIDHt0=
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
 github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef h1:46PFijGLmAjMPwCCCo7Jf0W6f9slllCkkv7vyc1yOSg=
 github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef/go.mod h1:WaHUgvxTVq04UNunO+XhnAqY/wQc+bxr74GqbsZ/Jqw=
