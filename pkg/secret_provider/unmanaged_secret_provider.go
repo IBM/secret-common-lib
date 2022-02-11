@@ -18,7 +18,7 @@ package secret_provider
 
 import (
 	auth "github.com/IBM/secret-utils-lib/pkg/authenticator"
-
+	"github.com/IBM/secret-utils-lib/pkg/utils"
 	"go.uber.org/zap"
 )
 
@@ -52,9 +52,9 @@ func (usp *UnmanagedSecretProvider) GetIAMToken(secret string, isFreshTokenRequi
 	usp.logger.Info("Fetching IAM token the provided secret")
 	var authenticator auth.Authenticator
 	switch usp.authType {
-	case auth.IAM:
+	case utils.IAM:
 		authenticator = auth.NewIamAuthenticator(secret, usp.logger)
-	case auth.PODIDENTITY:
+	case utils.PODIDENTITY:
 		authenticator = auth.NewComputeIdentityAuthenticator(secret, usp.logger)
 	}
 
