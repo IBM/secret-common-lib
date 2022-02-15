@@ -17,6 +17,7 @@
 package utils
 
 const (
+	// TODO - Remove this
 	// ErrInitializingSecretProvider ...
 	ErrInitializingSecretProvider = "error initlializing secret provider"
 )

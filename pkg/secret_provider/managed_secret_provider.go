@@ -49,7 +49,7 @@ func newManagedSecretProvider(logger *zap.Logger) (*ManagedSecretProvider, error
 	_, err := grpc.DialContext(ctx, *endpoint, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithDialer(unixConnect))
 	if err != nil {
 		logger.Error("Error establishing grpc connection to secret sidecar", zap.Error(err))
-		return nil, err
+		return nil, utils.Error{Description: "Error establishing grpc connection", BackendError: err.Error()}
 	}
 
 	logger.Info("Initialized managed secret provider")
