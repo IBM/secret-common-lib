@@ -22,6 +22,8 @@ import (
 	"net"
 	"time"
 
+	"github.com/IBM/secret-utils-lib/pkg/token"
+	"github.com/IBM/secret-utils-lib/pkg/utils"
 	sp "github.com/IBM/secret-utils-lib/secretprovider"
 
 	"go.uber.org/zap"
@@ -34,19 +36,22 @@ var (
 
 // ManagedSecretProvider ...
 type ManagedSecretProvider struct {
-	logger *zap.Logger
+	logger             *zap.Logger
+	defaultSecretToken string
 }
 
 // newManagedSecretProvider ...
 func newManagedSecretProvider(logger *zap.Logger) (*ManagedSecretProvider, error) {
 	logger.Info("Initializing managed secret provider, Checking if connection can be established to secret sidecar")
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-        defer cancel()
+	defer cancel()
+
 	_, err := grpc.DialContext(ctx, *endpoint, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithDialer(unixConnect))
 	if err != nil {
 		logger.Error("Error establishing grpc connection to secret sidecar", zap.Error(err))
 		return nil, err
 	}
+
 	logger.Info("Initialized managed secret provider")
 	return &ManagedSecretProvider{logger: logger}, nil
 }
@@ -54,45 +59,66 @@ func newManagedSecretProvider(logger *zap.Logger) (*ManagedSecretProvider, error
 // GetDefaultIAMToken ...
 func (msp *ManagedSecretProvider) GetDefaultIAMToken(freshTokenRequired bool) (string, uint64, error) {
 	msp.logger.Info("Fetching IAM token for default secret")
-	conn, err := grpc.Dial(*endpoint, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithDialer(unixConnect))
-	var token string
+
 	var tokenlifetime uint64
+
+	// If the token in cache is valid, secret sidecar will not be called
+	tokenlifetime, err := token.CheckTokenLifeTime(msp.defaultSecretToken)
+	if err == nil {
+		msp.logger.Info("Successfully fetched iam token")
+		return msp.defaultSecretToken, tokenlifetime, nil
+	}
+
+	// token in the cache isn't valid, hence sidecar needs to be called
+	// Connecting to sidecar
+	msp.logger.Info("Connecting to sidecar")
+	conn, err := grpc.Dial(*endpoint, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithDialer(unixConnect))
 	if err != nil {
 		msp.logger.Error("Error establishing grpc connection to secret sidecar", zap.Error(err))
-		return "", tokenlifetime, err
+		return "", tokenlifetime, utils.Error{Description: "Error establishing grpc connection to secret sidecar", BackendError: err.Error()}
 	}
+
 	c := sp.NewSecretProviderClient(conn)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
 	defer conn.Close()
-	response, err := c.GetDefaultIAMToken(ctx, &sp.Request{IsFreshTokenRequired: freshTokenRequired})
+
+	response, err := c.GetDefaultIAMToken(ctx, &sp.Request{IsFreshTokenRequired: true})
 	if err != nil {
 		msp.logger.Error("Error fetching IAM token", zap.Error(err))
-		return token, tokenlifetime, err
+		return "", tokenlifetime, err
 	}
+
 	msp.logger.Info("Successfully fetched IAM token for default secret")
+	// Updating the cache with the new token received from sidecar
+	msp.defaultSecretToken = response.Iamtoken
 	return response.Iamtoken, response.Tokenlifetime, nil
 }
 
 // GetIAMToken ...
 func (msp *ManagedSecretProvider) GetIAMToken(secret string, freshTokenRequired bool) (string, uint64, error) {
 	msp.logger.Info("Fetching IAM token for the provided secret")
-	conn, err := grpc.Dial(*endpoint, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithDialer(unixConnect))
-	var token string
+
 	var tokenlifetime uint64
+
+	msp.logger.Info("Connecting to secret sidecar")
+	conn, err := grpc.Dial(*endpoint, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithDialer(unixConnect))
 	if err != nil {
 		msp.logger.Error("Error establishing grpc connection to secret sidecar", zap.Error(err))
-		return "", tokenlifetime, err
+		return "", tokenlifetime, utils.Error{Description: "Error establishing grpc connection to secret sidecar", BackendError: err.Error()}
 	}
+
 	c := sp.NewSecretProviderClient(conn)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
 	defer conn.Close()
+
 	response, err := c.GetIAMToken(ctx, &sp.Request{Secret: secret, IsFreshTokenRequired: freshTokenRequired})
 	if err != nil {
 		msp.logger.Error("Error fetching IAM token", zap.Error(err))
-		return token, tokenlifetime, err
+		return "", tokenlifetime, err
 	}
+
 	msp.logger.Info("Successfully fetched IAM token for the provided secret")
 	return response.Iamtoken, response.Tokenlifetime, nil
 }
