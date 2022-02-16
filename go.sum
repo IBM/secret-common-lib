@@ -4,8 +4,8 @@ github.com/BurntSushi/toml v1.0.0 h1:dtDWrepsVPfW9H/4y7dDgFc2MBUSeJhlaDtK13CxFlU
 github.com/BurntSushi/toml v1.0.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/IBM/go-sdk-core/v5 v5.9.1 h1:06pXbD9Rgmqqe2HA5YAeQbB4eYRRFgIoOT+Kh3cp1zo=
 github.com/IBM/go-sdk-core/v5 v5.9.1/go.mod h1:axE2JrRq79gIJTjKPBwV6gWHswvVptBjbcvvCPIxARM=
-github.com/IBM/secret-utils-lib v0.0.0-20220215124047-4cba5e6be05a h1:1kB+ksArdvQB9QIknzloE4y8TEEmoY4N5h44LDcM9dI=
-github.com/IBM/secret-utils-lib v0.0.0-20220215124047-4cba5e6be05a/go.mod h1:TJStEWXUMqmuOz4dTmHv/vl9xrMGopvD9E2mfbBkYT4=
+github.com/IBM/secret-utils-lib v0.0.0-20220216041619-54697f1f96f9 h1:TNe4Q2j8NmxoHNisWs5aoV4MEZkxWmDb96/D4GfnHaw=
+github.com/IBM/secret-utils-lib v0.0.0-20220216041619-54697f1f96f9/go.mod h1:TJStEWXUMqmuOz4dTmHv/vl9xrMGopvD9E2mfbBkYT4=
 github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef h1:46PFijGLmAjMPwCCCo7Jf0W6f9slllCkkv7vyc1yOSg=
 github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef/go.mod h1:WaHUgvxTVq04UNunO+XhnAqY/wQc+bxr74GqbsZ/Jqw=
 github.com/benbjohnson/clock v1.1.0 h1:Q92kusRqC1XV2MjkWETPvjJVqKetz1OzxZB7mHJLju8=
