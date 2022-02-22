@@ -18,6 +18,7 @@ package secret_provider
 
 import (
 	"os"
+	"strings"
 
 	sp "github.com/IBM/secret-utils-lib/pkg/secret_provider"
 
@@ -26,7 +27,11 @@ import (
 )
 
 // NewSecretProvider ...
-func NewSecretProvider(managed bool) (sp.SecretProviderInterface, error) {
+func NewSecretProvider() (sp.SecretProviderInterface, error) {
+	var managed bool
+	if iksEnabled := os.Getenv("IKS_ENABLED"); strings.ToLower(iksEnabled) == "true" {
+		managed = true
+	}
 	logger := setUpLogger(managed)
 	logger.Info("Initializing secret provider")
 	var secretprovider sp.SecretProviderInterface
