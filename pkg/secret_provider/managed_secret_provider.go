@@ -46,8 +46,9 @@ type ManagedSecretProvider struct {
 }
 
 type secretWatcher struct {
-	watcher    watch.Interface
-	secretname string
+	watcher          watch.Interface
+	secretname       string
+	isUpdateRequired bool
 }
 
 // newManagedSecretProvider ...
@@ -67,8 +68,10 @@ func newManagedSecretProvider(logger *zap.Logger) (*ManagedSecretProvider, error
 		logger.Error("Error initializing secret watcher")
 		return nil, err
 	}
+	msp := &ManagedSecretProvider{logger: logger, watcher: watcher}
+	go checkUpdate(msp)
 	logger.Info("Initialized managed secret provider")
-	return &ManagedSecretProvider{logger: logger, watcher: watcher}, nil
+	return msp, nil
 }
 
 // GetDefaultIAMToken ...
@@ -76,9 +79,8 @@ func (msp *ManagedSecretProvider) GetDefaultIAMToken(freshTokenRequired bool) (s
 	msp.logger.Info("Fetching IAM token for default secret")
 
 	var tokenlifetime uint64
-	isSecretUpdated := msp.watcher.isSecretUpdated(msp.logger)
 
-	if !isSecretUpdated {
+	if !msp.watcher.isUpdateRequired {
 		// If the token in cache is valid, secret sidecar will not be called
 		tokenlifetime, err := token.CheckTokenLifeTime(msp.defaultSecretToken)
 		if err == nil {
@@ -101,12 +103,12 @@ func (msp *ManagedSecretProvider) GetDefaultIAMToken(freshTokenRequired bool) (s
 	defer cancel()
 	defer conn.Close()
 
-	response, err := c.GetDefaultIAMToken(ctx, &sp.Request{IsFreshTokenRequired: true, ReadSecret: isSecretUpdated})
+	response, err := c.GetDefaultIAMToken(ctx, &sp.Request{IsFreshTokenRequired: true, ReadSecret: msp.watcher.isUpdateRequired})
 	if err != nil {
 		msp.logger.Error("Error fetching IAM token", zap.Error(err))
 		return "", tokenlifetime, err
 	}
-
+	msp.watcher.isUpdateRequired = false
 	msp.logger.Info("Successfully fetched IAM token for default secret")
 	// Updating the cache with the new token received from sidecar
 	msp.defaultSecretToken = response.Iamtoken
@@ -200,16 +202,22 @@ func initSecretWatcher(logger *zap.Logger) (*secretWatcher, error) {
 }
 
 // checkUpdate ...
-func (w *secretWatcher) isSecretUpdated(logger *zap.Logger) bool {
-	event, open := <-w.watcher.ResultChan()
-	if open {
-		if event.Type == watch.Deleted {
-			logger.Info("Secret is deleted", zap.String("secret-name", w.secretname))
+func checkUpdate(msp *ManagedSecretProvider) {
+	var err error
+	for {
+		event, open := <-msp.watcher.watcher.ResultChan()
+		if open {
+			if event.Type == watch.Deleted {
+				msp.logger.Info("Secret is deleted", zap.String("secret-name", msp.watcher.secretname))
+				msp.watcher, err = initSecretWatcher(msp.logger)
+				if err != nil {
+					msp.logger.Error("Error reinitializing secret, exiting watcher", zap.Error(err))
+					return
+				}
+			} else if event.Type == watch.Modified {
+				msp.logger.Info("Secret is modified", zap.String("secret-name", msp.watcher.secretname))
+			}
+			msp.watcher.isUpdateRequired = true
 		}
-		if event.Type == watch.Modified {
-			logger.Info("Secret is modified", zap.String("secret-name", w.secretname))
-		}
-		return true
 	}
-	return false
 }
