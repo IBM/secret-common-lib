@@ -22,10 +22,8 @@ import (
 	"net"
 	"time"
 
-	"github.com/IBM/secret-utils-lib/pkg/token"
 	"github.com/IBM/secret-utils-lib/pkg/utils"
 	sp "github.com/IBM/secret-utils-lib/secretprovider"
-
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
@@ -37,8 +35,8 @@ var (
 // ManagedSecretProvider ...
 type ManagedSecretProvider struct {
 	logger             *zap.Logger
-	defaultSecretToken string
 }
+
 
 // newManagedSecretProvider ...
 func newManagedSecretProvider(logger *zap.Logger) (*ManagedSecretProvider, error) {
@@ -62,14 +60,6 @@ func (msp *ManagedSecretProvider) GetDefaultIAMToken(freshTokenRequired bool) (s
 
 	var tokenlifetime uint64
 
-	// If the token in cache is valid, secret sidecar will not be called
-	tokenlifetime, err := token.CheckTokenLifeTime(msp.defaultSecretToken)
-	if err == nil {
-		msp.logger.Info("Successfully fetched iam token")
-		return msp.defaultSecretToken, tokenlifetime, nil
-	}
-
-	// token in the cache isn't valid, hence sidecar needs to be called
 	// Connecting to sidecar
 	msp.logger.Info("Connecting to sidecar")
 	conn, err := grpc.Dial(*endpoint, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithDialer(unixConnect))
@@ -83,15 +73,13 @@ func (msp *ManagedSecretProvider) GetDefaultIAMToken(freshTokenRequired bool) (s
 	defer cancel()
 	defer conn.Close()
 
-	response, err := c.GetDefaultIAMToken(ctx, &sp.Request{IsFreshTokenRequired: true})
+	response, err := c.GetDefaultIAMToken(ctx, &sp.Request{IsFreshTokenRequired: freshTokenRequired})
 	if err != nil {
 		msp.logger.Error("Error fetching IAM token", zap.Error(err))
 		return "", tokenlifetime, err
 	}
 
 	msp.logger.Info("Successfully fetched IAM token for default secret")
-	// Updating the cache with the new token received from sidecar
-	msp.defaultSecretToken = response.Iamtoken
 	return response.Iamtoken, response.Tokenlifetime, nil
 }
 
