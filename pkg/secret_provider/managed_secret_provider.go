@@ -34,9 +34,8 @@ var (
 
 // ManagedSecretProvider ...
 type ManagedSecretProvider struct {
-	logger             *zap.Logger
+	logger *zap.Logger
 }
-
 
 // newManagedSecretProvider ...
 func newManagedSecretProvider(logger *zap.Logger) (*ManagedSecretProvider, error) {
