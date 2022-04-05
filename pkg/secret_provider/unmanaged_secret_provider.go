@@ -18,6 +18,7 @@ package secret_provider
 
 import (
 	auth "github.com/IBM/secret-utils-lib/pkg/authenticator"
+	"github.com/IBM/secret-utils-lib/pkg/k8s_utils"
 	"github.com/IBM/secret-utils-lib/pkg/utils"
 	"go.uber.org/zap"
 )
@@ -32,7 +33,16 @@ type UnmanagedSecretProvider struct {
 // newUnmanagedSecretProvider ...
 func newUnmanagedSecretProvider(logger *zap.Logger) (*UnmanagedSecretProvider, error) {
 	logger.Info("Initliazing unmanaged secret provider")
-	authenticator, authType, err := auth.NewAuthenticator(logger)
+	kc, err := k8s_utils.Getk8sClientSet(logger)
+	if err != nil {
+		return nil, err
+	}
+	return initUnmanagedSecretProvider(logger, kc)
+}
+
+// initUnmanagedSecretProvider ...
+func initUnmanagedSecretProvider(logger *zap.Logger, kc *k8s_utils.KubernetesClient) (*UnmanagedSecretProvider, error) {
+	authenticator, authType, err := auth.NewAuthenticator(logger, kc)
 	if err != nil {
 		logger.Error("Error initializing unmanaged secret provider", zap.Error(err))
 		return nil, err
