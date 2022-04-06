@@ -35,6 +35,7 @@ func newUnmanagedSecretProvider(logger *zap.Logger) (*UnmanagedSecretProvider, e
 	logger.Info("Initliazing unmanaged secret provider")
 	kc, err := k8s_utils.Getk8sClientSet(logger)
 	if err != nil {
+		logger.Info("Error fetching k8s client set", zap.Error(err))
 		return nil, err
 	}
 	return initUnmanagedSecretProvider(logger, kc)
