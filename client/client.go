@@ -1,6 +1,8 @@
-package client
+package main
 
 import (
+	"fmt"
+
 	sp "github.com/IBM/secret-common-lib/pkg/secret_provider"
 )
 
@@ -12,9 +14,9 @@ func main() {
 	freshTokenRequired := true
 
 	// Call to get IAM token for the default secret
-	secretprovider.GetDefaultIAMToken(freshTokenRequired)
+	fmt.Println(secretprovider.GetDefaultIAMToken(freshTokenRequired))
 
 	// Call to get IAM token for a different secret
 	secret := "valid-secret"
-	secretprovider.GetIAMToken(secret, freshTokenRequired)
+	fmt.Println(secretprovider.GetIAMToken(secret, freshTokenRequired))
 }

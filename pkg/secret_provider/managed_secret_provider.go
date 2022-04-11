@@ -43,7 +43,7 @@ func newManagedSecretProvider(logger *zap.Logger) (*ManagedSecretProvider, error
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	_, err := grpc.DialContext(ctx, *endpoint, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithDialer(unixConnect))
+	_, err := grpc.DialContext(ctx, *endpoint, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithContextDialer(unixConnect))
 	if err != nil {
 		logger.Error("Error establishing grpc connection to secret sidecar", zap.Error(err))
 		return nil, utils.Error{Description: "Error establishing grpc connection", BackendError: err.Error()}
@@ -61,7 +61,7 @@ func (msp *ManagedSecretProvider) GetDefaultIAMToken(freshTokenRequired bool) (s
 
 	// Connecting to sidecar
 	msp.logger.Info("Connecting to sidecar")
-	conn, err := grpc.Dial(*endpoint, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithDialer(unixConnect))
+	conn, err := grpc.Dial(*endpoint, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithContextDialer(unixConnect))
 	if err != nil {
 		msp.logger.Error("Error establishing grpc connection to secret sidecar", zap.Error(err))
 		return "", tokenlifetime, utils.Error{Description: "Error establishing grpc connection to secret sidecar", BackendError: err.Error()}
@@ -89,7 +89,7 @@ func (msp *ManagedSecretProvider) GetIAMToken(secret string, freshTokenRequired 
 	var tokenlifetime uint64
 
 	msp.logger.Info("Connecting to secret sidecar")
-	conn, err := grpc.Dial(*endpoint, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithDialer(unixConnect))
+	conn, err := grpc.Dial(*endpoint, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithContextDialer(unixConnect))
 	if err != nil {
 		msp.logger.Error("Error establishing grpc connection to secret sidecar", zap.Error(err))
 		return "", tokenlifetime, utils.Error{Description: "Error establishing grpc connection to secret sidecar", BackendError: err.Error()}
@@ -111,7 +111,7 @@ func (msp *ManagedSecretProvider) GetIAMToken(secret string, freshTokenRequired 
 }
 
 // unixConnect ...
-func unixConnect(addr string, t time.Duration) (net.Conn, error) {
+func unixConnect(ctx context.Context, addr string) (net.Conn, error) {
 	unixAddr, err := net.ResolveUnixAddr("unix", addr)
 	if err != nil {
 		return nil, err

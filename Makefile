@@ -18,7 +18,7 @@ COLOR_RESET=\033[0m
 OSS_FILES := go.mod
 
 .PHONY: all
-all: deps fmt vet test
+all: deps fmt vet
 
 .PHONY: deps
 deps:
@@ -44,11 +44,6 @@ lint:
 .PHONY: vet
 vet:
 	go vet ${GOPACKAGES}
-
-.PHONY: test
-test:
-	$(GOPATH)/bin/gotestcover -v -race -short -coverprofile=cover.out ${GOPACKAGES}
-	go tool cover -html=cover.out -o=cover.html
 
 .PHONY: ut-coverage
 ut-coverage: deps fmt vet test
