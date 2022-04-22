@@ -34,17 +34,16 @@ var (
 
 // ManagedSecretProvider ...
 type ManagedSecretProvider struct {
-	logger             *zap.Logger
+	logger *zap.Logger
 }
-
 
 // newManagedSecretProvider ...
 func newManagedSecretProvider(logger *zap.Logger) (*ManagedSecretProvider, error) {
 	logger.Info("Initializing managed secret provider, Checking if connection can be established to secret sidecar")
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
 
-	_, err := grpc.DialContext(ctx, *endpoint, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithDialer(unixConnect))
+	_, err := grpc.DialContext(ctx, *endpoint, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithContextDialer(unixConnect))
 	if err != nil {
 		logger.Error("Error establishing grpc connection to secret sidecar", zap.Error(err))
 		return nil, utils.Error{Description: "Error establishing grpc connection", BackendError: err.Error()}
@@ -62,7 +61,7 @@ func (msp *ManagedSecretProvider) GetDefaultIAMToken(freshTokenRequired bool) (s
 
 	// Connecting to sidecar
 	msp.logger.Info("Connecting to sidecar")
-	conn, err := grpc.Dial(*endpoint, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithDialer(unixConnect))
+	conn, err := grpc.Dial(*endpoint, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithContextDialer(unixConnect))
 	if err != nil {
 		msp.logger.Error("Error establishing grpc connection to secret sidecar", zap.Error(err))
 		return "", tokenlifetime, utils.Error{Description: "Error establishing grpc connection to secret sidecar", BackendError: err.Error()}
@@ -90,7 +89,7 @@ func (msp *ManagedSecretProvider) GetIAMToken(secret string, freshTokenRequired 
 	var tokenlifetime uint64
 
 	msp.logger.Info("Connecting to secret sidecar")
-	conn, err := grpc.Dial(*endpoint, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithDialer(unixConnect))
+	conn, err := grpc.Dial(*endpoint, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithContextDialer(unixConnect))
 	if err != nil {
 		msp.logger.Error("Error establishing grpc connection to secret sidecar", zap.Error(err))
 		return "", tokenlifetime, utils.Error{Description: "Error establishing grpc connection to secret sidecar", BackendError: err.Error()}
@@ -112,7 +111,7 @@ func (msp *ManagedSecretProvider) GetIAMToken(secret string, freshTokenRequired 
 }
 
 // unixConnect ...
-func unixConnect(addr string, t time.Duration) (net.Conn, error) {
+func unixConnect(ctx context.Context, addr string) (net.Conn, error) {
 	unixAddr, err := net.ResolveUnixAddr("unix", addr)
 	if err != nil {
 		return nil, err

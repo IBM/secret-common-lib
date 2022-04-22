@@ -26,7 +26,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-// NewSecretProvider ...
+// NewSecretProvider initializes new secret provider
 func NewSecretProvider() (sp.SecretProviderInterface, error) {
 	var managed bool
 	if iksEnabled := os.Getenv("IKS_ENABLED"); strings.ToLower(iksEnabled) == "true" {
