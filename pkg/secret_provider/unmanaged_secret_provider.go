@@ -17,6 +17,10 @@
 package secret_provider
 
 import (
+	"encoding/base64"
+	"os"
+
+	localutils "github.com/IBM/secret-common-lib/pkg/utils"
 	auth "github.com/IBM/secret-utils-lib/pkg/authenticator"
 	"github.com/IBM/secret-utils-lib/pkg/k8s_utils"
 	"github.com/IBM/secret-utils-lib/pkg/utils"
@@ -48,6 +52,22 @@ func initUnmanagedSecretProvider(logger *zap.Logger, kc *k8s_utils.KubernetesCli
 		logger.Error("Error initializing unmanaged secret provider", zap.Error(err))
 		return nil, err
 	}
+
+	if authenticator.IsSecretEncrypted() {
+		logger.Error("Secret is encrypted, decryption is only supported by sidecar container")
+		return nil, utils.Error{Description: localutils.ErrDecryptionNotSupported}
+	}
+
+	// Checking if the secret(api key) needs to be decoded
+	if (authType == utils.IAM || authType == utils.DEFAULT) && (os.Getenv("IS_SATELLITE") == "True") {
+		logger.Info("Decoding apiKey since it's a satellite cluster")
+		decodedSecret, err := base64.StdEncoding.DecodeString(authenticator.GetSecret())
+		if err != nil {
+			logger.Error("Error decoding the secret", zap.Error(err))
+			return nil, err
+		}
+		authenticator.SetSecret(string(decodedSecret))
+	}
 	logger.Info("Initliazed unmanaged secret provider")
 	return &UnmanagedSecretProvider{authenticator: authenticator, logger: logger, authType: authType}, nil
 }
@@ -63,7 +83,7 @@ func (usp *UnmanagedSecretProvider) GetIAMToken(secret string, isFreshTokenRequi
 	usp.logger.Info("Fetching IAM token the provided secret")
 	var authenticator auth.Authenticator
 	switch usp.authType {
-	case utils.IAM:
+	case utils.IAM, utils.DEFAULT:
 		authenticator = auth.NewIamAuthenticator(secret, usp.logger)
 	case utils.PODIDENTITY:
 		authenticator = auth.NewComputeIdentityAuthenticator(secret, usp.logger)

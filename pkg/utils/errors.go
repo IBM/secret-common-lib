@@ -17,7 +17,6 @@
 package utils
 
 const (
-	// TODO - Remove this
-	// ErrInitializingSecretProvider ...
-	ErrInitializingSecretProvider = "error initlializing secret provider"
+	// ErrDecryptionNotSupported ...
+	ErrDecryptionNotSupported = "API key is encrypted, decryption is supported only by sidecar"
 )
