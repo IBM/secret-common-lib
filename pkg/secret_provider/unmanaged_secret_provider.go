@@ -60,7 +60,7 @@ func initUnmanagedSecretProvider(logger *zap.Logger, kc *k8s_utils.KubernetesCli
 	}
 
 	// Checking if the secret(api key) needs to be decoded
-	if (authType == utils.IAM || authType == utils.DEFAULT) && (os.Getenv("IS_SATELLITE") == "True") {
+	if authType == utils.DEFAULT && os.Getenv("IS_SATELLITE") == "True" {
 		logger.Info("Decoding apiKey since it's a satellite cluster")
 		decodedSecret, err := base64.StdEncoding.DecodeString(authenticator.GetSecret())
 		if err != nil {
