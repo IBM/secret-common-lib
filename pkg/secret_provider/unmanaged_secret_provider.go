@@ -29,9 +29,10 @@ import (
 
 // UnmanagedSecretProvider ...
 type UnmanagedSecretProvider struct {
-	authenticator auth.Authenticator
-	logger        *zap.Logger
-	authType      string
+	authenticator    auth.Authenticator
+	logger           *zap.Logger
+	authType         string
+	tokenExchangeURL string
 }
 
 // newUnmanagedSecretProvider ...
@@ -69,7 +70,7 @@ func initUnmanagedSecretProvider(logger *zap.Logger, kc *k8s_utils.KubernetesCli
 		authenticator.SetSecret(string(decodedSecret))
 	}
 	logger.Info("Initliazed unmanaged secret provider")
-	return &UnmanagedSecretProvider{authenticator: authenticator, logger: logger, authType: authType}, nil
+	return &UnmanagedSecretProvider{authenticator: authenticator, logger: logger, authType: authType, tokenExchangeURL: kc.GetTokenExchangeURL()}, nil
 }
 
 // GetDefaultIAMToken ...
@@ -89,6 +90,7 @@ func (usp *UnmanagedSecretProvider) GetIAMToken(secret string, isFreshTokenRequi
 		authenticator = auth.NewComputeIdentityAuthenticator(secret, usp.logger)
 	}
 
+	authenticator.SetURL(usp.tokenExchangeURL)
 	token, tokenlifetime, err := authenticator.GetToken(isFreshTokenRequired)
 	if err != nil {
 		usp.logger.Error("Error fetching IAM token", zap.Error(err))
