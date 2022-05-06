@@ -22,6 +22,7 @@ import (
 
 	localutils "github.com/IBM/secret-common-lib/pkg/utils"
 	auth "github.com/IBM/secret-utils-lib/pkg/authenticator"
+	"github.com/IBM/secret-utils-lib/pkg/config"
 	"github.com/IBM/secret-utils-lib/pkg/k8s_utils"
 	"github.com/IBM/secret-utils-lib/pkg/utils"
 	"go.uber.org/zap"
@@ -47,12 +48,19 @@ func newUnmanagedSecretProvider(logger *zap.Logger) (*UnmanagedSecretProvider, e
 }
 
 // initUnmanagedSecretProvider ...
-func initUnmanagedSecretProvider(logger *zap.Logger, kc *k8s_utils.KubernetesClient) (*UnmanagedSecretProvider, error) {
+func initUnmanagedSecretProvider(logger *zap.Logger, kc k8s_utils.KubernetesClient) (*UnmanagedSecretProvider, error) {
 	authenticator, authType, err := auth.NewAuthenticator(logger, kc)
 	if err != nil {
 		logger.Error("Error initializing unmanaged secret provider", zap.Error(err))
 		return nil, err
 	}
+
+	tokenExchangeURL, err := config.FrameTokenExchangeURL(kc, logger)
+	if err != nil {
+		logger.Error("Error fetching token exchange URL", zap.Error(err))
+		return nil, err
+	}
+	authenticator.SetURL(tokenExchangeURL)
 
 	if authenticator.IsSecretEncrypted() {
 		logger.Error("Secret is encrypted, decryption is only supported by sidecar container")
@@ -70,7 +78,7 @@ func initUnmanagedSecretProvider(logger *zap.Logger, kc *k8s_utils.KubernetesCli
 		authenticator.SetSecret(string(decodedSecret))
 	}
 	logger.Info("Initliazed unmanaged secret provider")
-	return &UnmanagedSecretProvider{authenticator: authenticator, logger: logger, authType: authType, tokenExchangeURL: kc.GetTokenExchangeURL()}, nil
+	return &UnmanagedSecretProvider{authenticator: authenticator, logger: logger, authType: authType, tokenExchangeURL: tokenExchangeURL}, nil
 }
 
 // GetDefaultIAMToken ...
