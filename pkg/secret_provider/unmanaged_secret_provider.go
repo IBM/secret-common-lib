@@ -19,6 +19,7 @@ package secret_provider
 import (
 	"encoding/base64"
 	"os"
+	"strings"
 
 	localutils "github.com/IBM/secret-common-lib/pkg/utils"
 	auth "github.com/IBM/secret-utils-lib/pkg/authenticator"
@@ -75,7 +76,7 @@ func initUnmanagedSecretProvider(logger *zap.Logger, kc k8s_utils.KubernetesClie
 			logger.Error("Error decoding the secret", zap.Error(err))
 			return nil, err
 		}
-		authenticator.SetSecret(string(decodedSecret))
+		authenticator.SetSecret(strings.TrimSuffix(string(decodedSecret), "\n"))
 	}
 	logger.Info("Initliazed unmanaged secret provider")
 	return &UnmanagedSecretProvider{authenticator: authenticator, logger: logger, authType: authType, tokenExchangeURL: tokenExchangeURL}, nil
