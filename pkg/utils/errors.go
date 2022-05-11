@@ -18,5 +18,5 @@ package utils
 
 const (
 	// ErrDecryptionNotSupported ...
-	ErrDecryptionNotSupported = "API key is encrypted, decryption is supported only by sidecar"
+	ErrDecryptionNotSupported = "API key is encrypted as per the configuration, decryption of the same is not supported."
 )

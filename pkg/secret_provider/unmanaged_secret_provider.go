@@ -76,6 +76,7 @@ func initUnmanagedSecretProvider(logger *zap.Logger, kc k8s_utils.KubernetesClie
 			logger.Error("Error decoding the secret", zap.Error(err))
 			return nil, err
 		}
+                // In the decoded secret, newline could be present, trimming the same to extract a valid api key.
 		authenticator.SetSecret(strings.TrimSuffix(string(decodedSecret), "\n"))
 	}
 	logger.Info("Initliazed unmanaged secret provider")
