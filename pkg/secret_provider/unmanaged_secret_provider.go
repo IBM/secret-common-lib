@@ -56,11 +56,7 @@ func initUnmanagedSecretProvider(logger *zap.Logger, kc k8s_utils.KubernetesClie
 		return nil, err
 	}
 
-	tokenExchangeURL, err := config.FrameTokenExchangeURL(kc, logger)
-	if err != nil {
-		logger.Error("Error fetching token exchange URL", zap.Error(err))
-		return nil, err
-	}
+	tokenExchangeURL := config.FrameTokenExchangeURL(kc, logger)
 	authenticator.SetURL(tokenExchangeURL)
 
 	if authenticator.IsSecretEncrypted() {
@@ -76,7 +72,7 @@ func initUnmanagedSecretProvider(logger *zap.Logger, kc k8s_utils.KubernetesClie
 			logger.Error("Error decoding the secret", zap.Error(err))
 			return nil, err
 		}
-                // In the decoded secret, newline could be present, trimming the same to extract a valid api key.
+		// In the decoded secret, newline could be present, trimming the same to extract a valid api key.
 		authenticator.SetSecret(strings.TrimSuffix(string(decodedSecret), "\n"))
 	}
 	logger.Info("Initliazed unmanaged secret provider")
