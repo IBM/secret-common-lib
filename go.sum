@@ -36,6 +36,8 @@ github.com/IBM/go-sdk-core/v5 v5.9.1 h1:06pXbD9Rgmqqe2HA5YAeQbB4eYRRFgIoOT+Kh3cp
 github.com/IBM/go-sdk-core/v5 v5.9.1/go.mod h1:axE2JrRq79gIJTjKPBwV6gWHswvVptBjbcvvCPIxARM=
 github.com/IBM/secret-utils-lib v0.0.0-20220517051942-823c73540474 h1:vWU01Z4KuPgVKs95R8orezRK2YItLOZEIqYqsMh6hOI=
 github.com/IBM/secret-utils-lib v0.0.0-20220517051942-823c73540474/go.mod h1:2BB21TH5/hjq8j/KWBd3UwFIPRhEfjNyVjGdDRiDRDs=
+github.com/IBM/secret-utils-lib v1.0.0 h1:W3kdWfSwArFxMG0jy3ug5dkhPcEPX3RWM5O3Ostilg8=
+github.com/IBM/secret-utils-lib v1.0.0/go.mod h1:2BB21TH5/hjq8j/KWBd3UwFIPRhEfjNyVjGdDRiDRDs=
 github.com/NYTimes/gziphandler v0.0.0-20170623195520-56545f4a5d46/go.mod h1:3wb06e3pkSAbeQ52E9H9iFoQsEEwGN64994WTCIhntQ=
 github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
