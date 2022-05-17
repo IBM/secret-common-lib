@@ -7,7 +7,12 @@ import (
 )
 
 func main() {
-	secretprovider, _ := sp.NewSecretProvider()
+	secretprovider, err := sp.NewSecretProvider()
+	if err != nil {
+		fmt.Println("Error initializing provider")
+		fmt.Println(err)
+		return
+	}
 
 	// set freshTokenRequired to true is a fresh token is required
 	// else, set it to false, if the existing token is valid, the same will be returned, else a new token will be fetched from iam.
