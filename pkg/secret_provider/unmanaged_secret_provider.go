@@ -82,7 +82,7 @@ func initUnmanagedSecretProvider(logger *zap.Logger, kc k8s_utils.KubernetesClie
 // GetDefaultIAMToken ...
 func (usp *UnmanagedSecretProvider) GetDefaultIAMToken(isFreshTokenRequired bool) (string, uint64, error) {
 	usp.logger.Info("Fetching IAM token for default secret")
-	return usp.authenticator.GetToken(isFreshTokenRequired)
+	return usp.authenticator.GetToken(true)
 }
 
 // GetIAMToken ...
@@ -97,7 +97,7 @@ func (usp *UnmanagedSecretProvider) GetIAMToken(secret string, isFreshTokenRequi
 	}
 
 	authenticator.SetURL(usp.tokenExchangeURL)
-	token, tokenlifetime, err := authenticator.GetToken(isFreshTokenRequired)
+	token, tokenlifetime, err := authenticator.GetToken(true)
 	if err != nil {
 		usp.logger.Error("Error fetching IAM token", zap.Error(err))
 		return token, tokenlifetime, err
