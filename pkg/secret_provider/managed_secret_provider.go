@@ -22,6 +22,8 @@ import (
 	"net"
 	"time"
 
+	localutils "github.com/IBM/secret-common-lib/pkg/utils"
+	"github.com/IBM/secret-utils-lib/pkg/k8s_utils"
 	"github.com/IBM/secret-utils-lib/pkg/utils"
 	sp "github.com/IBM/secret-utils-lib/secretprovider"
 	"go.uber.org/zap"
@@ -34,11 +36,18 @@ var (
 
 // ManagedSecretProvider ...
 type ManagedSecretProvider struct {
-	logger *zap.Logger
+	logger                   *zap.Logger
+	k8sClient                k8s_utils.KubernetesClient
+	region                   string
+	riaasEndpoint            string
+	privateRIAASEndpoint     string
+	containerAPIRoute        string
+	privateContainerAPIRoute string
+	resourceGroupID          string
 }
 
 // newManagedSecretProvider ...
-func newManagedSecretProvider(logger *zap.Logger) (*ManagedSecretProvider, error) {
+func newManagedSecretProvider(logger *zap.Logger, providerType string) (*ManagedSecretProvider, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
 
@@ -112,4 +121,57 @@ func unixConnect(ctx context.Context, addr string) (net.Conn, error) {
 	}
 	conn, err := net.DialUnix("unix", nil, unixAddr)
 	return conn, err
+}
+
+// GetRIAASEndpoint ...
+func (msp *ManagedSecretProvider) GetRIAASEndpoint() (string, error) {
+	msp.logger.Info("In GetRIAASEndpoint()")
+	endpoint, err := getEndpoint(localutils.RIAAS, msp.riaasEndpoint, msp.k8sClient, msp.logger)
+	if err != nil {
+		return "", err
+	}
+
+	msp.riaasEndpoint = endpoint
+	return endpoint, nil
+}
+
+// GetPrivateRIAASEndpoint ...
+func (msp *ManagedSecretProvider) GetPrivateRIAASEndpoint() (string, error) {
+	msp.logger.Info("In GetPrivateRIAASEndpoint()")
+	endpoint, err := getEndpoint(localutils.PrivateRIAAS, msp.privateRIAASEndpoint, msp.k8sClient, msp.logger)
+	if err != nil {
+		return "", err
+	}
+
+	msp.privateRIAASEndpoint = endpoint
+	return endpoint, nil
+}
+
+// GetContainerAPIRoute ...
+func (msp *ManagedSecretProvider) GetContainerAPIRoute() (string, error) {
+	msp.logger.Info("In GetContainerAPIRoute()")
+	endpoint, err := getEndpoint(localutils.ContainerAPIRoute, msp.containerAPIRoute, msp.k8sClient, msp.logger)
+	if err != nil {
+		return "", err
+	}
+
+	msp.containerAPIRoute = endpoint
+	return endpoint, nil
+}
+
+// GetPrivateContainerAPIRoute ...
+func (msp *ManagedSecretProvider) GetPrivateContainerAPIRoute() (string, error) {
+	msp.logger.Info("In GetPrivateContainerAPIRoute()")
+	endpoint, err := getEndpoint(localutils.PrivateContainerAPIRoute, msp.privateContainerAPIRoute, msp.k8sClient, msp.logger)
+	if err != nil {
+		return "", err
+	}
+
+	msp.privateContainerAPIRoute = endpoint
+	return endpoint, nil
+}
+
+// GetResourceGroupID ...
+func (msp *ManagedSecretProvider) GetResourceGroupID() string {
+	return msp.resourceGroupID
 }
