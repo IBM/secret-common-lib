@@ -19,4 +19,16 @@ package utils
 const (
 	// ErrDecryptionNotSupported ...
 	ErrDecryptionNotSupported = "API key is encrypted as per the configuration, decryption of the same is not supported."
+
+	// ErrEmptyURL ...
+	ErrEmptyURL = "%s URL is empty"
+
+	// ErrURLUnreachable ...
+	ErrURLUnreachable = "%s is unreachable"
+
+	// ErrorFetchingEndpoint ...
+	ErrorFetchingEndpoint = "Unable to fetch %s endpoint"
+
+	// ErrInitSecretProvider ...
+	ErrInitSecretProvider = "Error initializing secret provider"
 )

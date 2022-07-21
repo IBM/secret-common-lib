@@ -26,8 +26,14 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+const (
+	VPC       string = "vpc"
+	Bluemix   string = "bluemix"
+	Softlayer string = "softlayer"
+)
+
 // NewSecretProvider initializes new secret provider
-func NewSecretProvider() (sp.SecretProviderInterface, error) {
+func NewSecretProvider(providerType string, secretKey ...string) (sp.SecretProviderInterface, error) {
 	var managed bool
 	if iksEnabled := os.Getenv("IKS_ENABLED"); strings.ToLower(iksEnabled) == "true" {
 		managed = true
@@ -35,10 +41,10 @@ func NewSecretProvider() (sp.SecretProviderInterface, error) {
 	logger := setUpLogger(managed)
 	var secretprovider sp.SecretProviderInterface
 	var err error
-	if managed {
-		secretprovider, err = newManagedSecretProvider(logger)
+	if managed && len(secretKey) == 0 {
+		secretprovider, err = newManagedSecretProvider(logger, providerType)
 	} else {
-		secretprovider, err = newUnmanagedSecretProvider(logger)
+		secretprovider, err = newUnmanagedSecretProvider(logger, providerType, secretKey...)
 	}
 
 	if err != nil {
