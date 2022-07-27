@@ -18,7 +18,6 @@ package secret_provider
 
 import (
 	"fmt"
-	"net/http"
 	"strings"
 
 	localutils "github.com/IBM/secret-common-lib/pkg/utils"
@@ -44,12 +43,6 @@ const (
 
 // getEndpoint ...
 func getEndpoint(endpointName, endpointValue string, k8sClient k8s_utils.KubernetesClient, logger *zap.Logger) (string, error) {
-	// Checking if the endpoint in cache is reachable
-	if err := isURLReachable(endpointName, endpointValue, logger); err == nil {
-		logger.Info(fmt.Sprintf("Returning %s endpoint", endpointName), zap.String("endpoint", endpointValue))
-		return endpointValue, nil
-	}
-
 	// Fetching endpoint using Cloud conf
 	cloudConf, err := getCloudConf(logger, k8sClient)
 
@@ -65,7 +58,7 @@ func getEndpoint(endpointName, endpointValue string, k8sClient k8s_utils.Kuberne
 		case localutils.PrivateContainerAPIRoute:
 			endpointValue = cloudConf.PrivateContainerAPIRoute
 		}
-		if err = isURLReachable(endpointName, endpointValue, logger); err == nil {
+		if endpointValue != "" {
 			logger.Info(fmt.Sprintf("Fetched %s endpoint from cloud-conf", endpointName), zap.String("endpoint", endpointValue))
 			return endpointValue, nil
 		}
@@ -96,31 +89,13 @@ func getEndpoint(endpointName, endpointValue string, k8sClient k8s_utils.Kuberne
 		endpointValue = conf.Bluemix.PrivateAPIRoute
 	}
 
-	if err = isURLReachable(endpointName, endpointValue, logger); err == nil {
+	if endpointValue != "" {
 		logger.Info(fmt.Sprintf("Fetched %s endpoint from storage-secret-store", endpointName), zap.String("endpoint", endpointValue))
 		return endpointValue, nil
 	}
 
-	logger.Error(fmt.Sprintf(localutils.ErrorFetchingEndpoint, endpointName), zap.Error(err))
-	return "", utils.Error{Description: fmt.Sprintf(localutils.ErrorFetchingEndpoint, endpointName), BackendError: err.Error()}
-}
-
-// isURLReachable checks if a given url is reachable
-// if the provided url is unreachable, returns error
-// urlName is something like - riaas, privateRIAAS, etc. Used for better logging and return message
-func isURLReachable(urlName, urlValue string, logger *zap.Logger) error {
-	if urlValue == "" {
-		logger.Error("Empty URL", zap.String("URL Name", urlName))
-		return utils.Error{Description: fmt.Sprintf(localutils.ErrEmptyURL, urlName)}
-	}
-
-	_, err := http.Get(urlValue)
-	if err != nil {
-		logger.Error("Endpoint unreachable", zap.String("URL", urlValue), zap.String("URL Name", urlName), zap.Error(err))
-		return utils.Error{Description: fmt.Sprintf(localutils.ErrURLUnreachable, urlValue), BackendError: err.Error()}
-	}
-
-	return nil
+	logger.Error(fmt.Sprintf(localutils.ErrEmptyEndpoint, endpointName))
+	return "", utils.Error{Description: fmt.Sprintf(localutils.ErrEmptyEndpoint, endpointName)}
 }
 
 // constructRIAASEndpoint ...

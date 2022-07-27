@@ -157,8 +157,13 @@ func (usp *UnmanagedSecretProvider) GetIAMToken(secret string, isFreshTokenRequi
 }
 
 // GetRIAASEndpoint ...
-func (usp *UnmanagedSecretProvider) GetRIAASEndpoint() (string, error) {
+func (usp *UnmanagedSecretProvider) GetRIAASEndpoint(readConfig bool) (string, error) {
 	usp.logger.Info("In GetRIAASEndpoint()")
+	if !readConfig {
+		usp.logger.Info("Returning RIAAS endpoint", zap.String("Endpoint", usp.riaasEndpoint))
+		return usp.riaasEndpoint, nil
+	}
+
 	endpoint, err := getEndpoint(localutils.RIAAS, usp.riaasEndpoint, usp.k8sClient, usp.logger)
 	if err != nil {
 		return "", err
@@ -169,8 +174,13 @@ func (usp *UnmanagedSecretProvider) GetRIAASEndpoint() (string, error) {
 }
 
 // GetPrivateRIAASEndpoint ...
-func (usp *UnmanagedSecretProvider) GetPrivateRIAASEndpoint() (string, error) {
+func (usp *UnmanagedSecretProvider) GetPrivateRIAASEndpoint(readConfig bool) (string, error) {
 	usp.logger.Info("In GetPrivateRIAASEndpoint()")
+	if !readConfig {
+		usp.logger.Info("Returning private RIAAS endpoint", zap.String("Endpoint", usp.privateRIAASEndpoint))
+		return usp.privateRIAASEndpoint, nil
+	}
+
 	endpoint, err := getEndpoint(localutils.PrivateRIAAS, usp.privateRIAASEndpoint, usp.k8sClient, usp.logger)
 	if err != nil {
 		return "", err
@@ -181,8 +191,13 @@ func (usp *UnmanagedSecretProvider) GetPrivateRIAASEndpoint() (string, error) {
 }
 
 // GetContainerAPIRoute ...
-func (usp *UnmanagedSecretProvider) GetContainerAPIRoute() (string, error) {
+func (usp *UnmanagedSecretProvider) GetContainerAPIRoute(readConfig bool) (string, error) {
 	usp.logger.Info("In GetContainerAPIRoute()")
+	if !readConfig {
+		usp.logger.Info("Returning container api route", zap.String("Endpoint", usp.containerAPIRoute))
+		return usp.containerAPIRoute, nil
+	}
+
 	endpoint, err := getEndpoint(localutils.ContainerAPIRoute, usp.containerAPIRoute, usp.k8sClient, usp.logger)
 	if err != nil {
 		return "", err
@@ -193,8 +208,13 @@ func (usp *UnmanagedSecretProvider) GetContainerAPIRoute() (string, error) {
 }
 
 // GetPrivateContainerAPIRoute ...
-func (usp *UnmanagedSecretProvider) GetPrivateContainerAPIRoute() (string, error) {
+func (usp *UnmanagedSecretProvider) GetPrivateContainerAPIRoute(readConfig bool) (string, error) {
 	usp.logger.Info("In GetPrivateContainerAPIRoute()")
+	if !readConfig {
+		usp.logger.Info("Returning private container api route", zap.String("Endpoint", usp.privateContainerAPIRoute))
+		return usp.privateContainerAPIRoute, nil
+	}
+
 	endpoint, err := getEndpoint(localutils.PrivateContainerAPIRoute, usp.privateContainerAPIRoute, usp.k8sClient, usp.logger)
 	if err != nil {
 		return "", err

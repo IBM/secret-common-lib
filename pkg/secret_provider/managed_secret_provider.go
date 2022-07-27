@@ -124,8 +124,13 @@ func unixConnect(ctx context.Context, addr string) (net.Conn, error) {
 }
 
 // GetRIAASEndpoint ...
-func (msp *ManagedSecretProvider) GetRIAASEndpoint() (string, error) {
+func (msp *ManagedSecretProvider) GetRIAASEndpoint(readConfig bool) (string, error) {
 	msp.logger.Info("In GetRIAASEndpoint()")
+	if !readConfig {
+		msp.logger.Info("Returning RIAAS endpoint", zap.String("Endpoint", msp.riaasEndpoint))
+		return msp.riaasEndpoint, nil
+	}
+
 	endpoint, err := getEndpoint(localutils.RIAAS, msp.riaasEndpoint, msp.k8sClient, msp.logger)
 	if err != nil {
 		return "", err
@@ -136,8 +141,13 @@ func (msp *ManagedSecretProvider) GetRIAASEndpoint() (string, error) {
 }
 
 // GetPrivateRIAASEndpoint ...
-func (msp *ManagedSecretProvider) GetPrivateRIAASEndpoint() (string, error) {
+func (msp *ManagedSecretProvider) GetPrivateRIAASEndpoint(readConfig bool) (string, error) {
 	msp.logger.Info("In GetPrivateRIAASEndpoint()")
+	if !readConfig {
+		msp.logger.Info("Returning private RIAAS endpoint", zap.String("Endpoint", msp.privateRIAASEndpoint))
+		return msp.privateRIAASEndpoint, nil
+	}
+
 	endpoint, err := getEndpoint(localutils.PrivateRIAAS, msp.privateRIAASEndpoint, msp.k8sClient, msp.logger)
 	if err != nil {
 		return "", err
@@ -148,8 +158,13 @@ func (msp *ManagedSecretProvider) GetPrivateRIAASEndpoint() (string, error) {
 }
 
 // GetContainerAPIRoute ...
-func (msp *ManagedSecretProvider) GetContainerAPIRoute() (string, error) {
+func (msp *ManagedSecretProvider) GetContainerAPIRoute(readConfig bool) (string, error) {
 	msp.logger.Info("In GetContainerAPIRoute()")
+	if !readConfig {
+		msp.logger.Info("Returning container api route", zap.String("Endpoint", msp.containerAPIRoute))
+		return msp.containerAPIRoute, nil
+	}
+
 	endpoint, err := getEndpoint(localutils.ContainerAPIRoute, msp.containerAPIRoute, msp.k8sClient, msp.logger)
 	if err != nil {
 		return "", err
@@ -160,8 +175,13 @@ func (msp *ManagedSecretProvider) GetContainerAPIRoute() (string, error) {
 }
 
 // GetPrivateContainerAPIRoute ...
-func (msp *ManagedSecretProvider) GetPrivateContainerAPIRoute() (string, error) {
+func (msp *ManagedSecretProvider) GetPrivateContainerAPIRoute(readConfig bool) (string, error) {
 	msp.logger.Info("In GetPrivateContainerAPIRoute()")
+	if !readConfig {
+		msp.logger.Info("Returning private container api route", zap.String("Endpoint", msp.privateContainerAPIRoute))
+		return msp.privateContainerAPIRoute, nil
+	}
+
 	endpoint, err := getEndpoint(localutils.PrivateContainerAPIRoute, msp.privateContainerAPIRoute, msp.k8sClient, msp.logger)
 	if err != nil {
 		return "", err
