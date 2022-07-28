@@ -34,12 +34,8 @@ github.com/BurntSushi/toml v1.0.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbi
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/IBM/go-sdk-core/v5 v5.9.1 h1:06pXbD9Rgmqqe2HA5YAeQbB4eYRRFgIoOT+Kh3cp1zo=
 github.com/IBM/go-sdk-core/v5 v5.9.1/go.mod h1:axE2JrRq79gIJTjKPBwV6gWHswvVptBjbcvvCPIxARM=
-github.com/IBM/secret-utils-lib v1.0.2 h1:AdhKHo/bMmFLMz7+ZjnqSUHuU22CMQsG5meddvwKaV8=
-github.com/IBM/secret-utils-lib v1.0.2/go.mod h1:2BB21TH5/hjq8j/KWBd3UwFIPRhEfjNyVjGdDRiDRDs=
-github.com/IBM/secret-utils-lib v1.0.3-0.20220720115729-563cacc4e426 h1:3LwpoUWB8JCMus8AVeBUCjD1xxSZ44hWinXDJsVTI5g=
-github.com/IBM/secret-utils-lib v1.0.3-0.20220720115729-563cacc4e426/go.mod h1:2BB21TH5/hjq8j/KWBd3UwFIPRhEfjNyVjGdDRiDRDs=
-github.com/IBM/secret-utils-lib v1.0.3-0.20220720121225-2ad9df175e04 h1:1cNuSRLFPeAVSMVgfq/6xRTphev+SrOlEUECk8oO98k=
-github.com/IBM/secret-utils-lib v1.0.3-0.20220720121225-2ad9df175e04/go.mod h1:2BB21TH5/hjq8j/KWBd3UwFIPRhEfjNyVjGdDRiDRDs=
+github.com/IBM/secret-utils-lib v1.0.3-0.20220728081733-47837b378591 h1:47QGwrGl4Y6KRgjVvAyHo1qTh9xSQ/LtzNphpxrveNs=
+github.com/IBM/secret-utils-lib v1.0.3-0.20220728081733-47837b378591/go.mod h1:2BB21TH5/hjq8j/KWBd3UwFIPRhEfjNyVjGdDRiDRDs=
 github.com/NYTimes/gziphandler v0.0.0-20170623195520-56545f4a5d46/go.mod h1:3wb06e3pkSAbeQ52E9H9iFoQsEEwGN64994WTCIhntQ=
 github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=

@@ -62,9 +62,6 @@ func initUnmanagedSecretProvider(logger *zap.Logger, kc k8s_utils.KubernetesClie
 		return nil, err
 	}
 
-	tokenExchangeURL := config.FrameTokenExchangeURL(kc, logger)
-	authenticator.SetURL(tokenExchangeURL)
-
 	if authenticator.IsSecretEncrypted() {
 		logger.Error("Secret is encrypted, decryption is only supported by sidecar container")
 		return nil, utils.Error{Description: localutils.ErrDecryptionNotSupported}
@@ -86,58 +83,32 @@ func initUnmanagedSecretProvider(logger *zap.Logger, kc k8s_utils.KubernetesClie
 	usp.authenticator = authenticator
 	usp.logger = logger
 	usp.authType = authType
-	usp.tokenExchangeURL = tokenExchangeURL
 	usp.k8sClient = kc
 
-	cloudConf, err := getCloudConf(logger, kc)
-	if err == nil && cloudConf.Region != "" {
-		usp.region = cloudConf.Region
-		if cloudConf.ContainerAPIRoute == "" {
-			usp.containerAPIRoute = constructContainerAPIRoute(usp.region)
-		}
-		if cloudConf.PrivateContainerAPIRoute == "" {
-			usp.privateContainerAPIRoute = constructPrivateContainerAPIRoute(usp.region)
-		}
-		if cloudConf.RiaasEndpoint == "" {
-			usp.riaasEndpoint = constructRIAASEndpoint(usp.region)
-		}
-		if cloudConf.PrivateRIAASEndpoint == "" {
-			usp.privateRIAASEndpoint = constructPrivateRIAASEndpoint(usp.region)
-		}
-		usp.resourceGroupID = cloudConf.ResourceGroupID
-		logger.Info("Initliazed unmanaged secret provider")
+	err = usp.initEndpointsUsingCloudConf()
+	if err == nil {
+		logger.Info("Initialized unmanaged secret provider")
 		return usp, nil
 	}
 
-	data, err := k8s_utils.GetSecretData(kc, utils.STORAGE_SECRET_STORE_SECRET, utils.SECRET_STORE_FILE)
+	err = usp.initEndpointsUsingStorageSecretStore(providerType)
 	if err != nil {
-		logger.Error("Error initializing secret provider, unable to fetch storage-secret-store")
+		logger.Error("Error initializing secret provider")
 		return nil, utils.Error{Description: localutils.ErrInitSecretProvider, BackendError: err.Error()}
 	}
 
-	conf, err := config.ParseConfig(logger, data)
-	if err != nil {
-		logger.Error("Error initializing secret provider, unable to parse storage-secret-store")
-		return nil, utils.Error{Description: localutils.ErrInitSecretProvider, BackendError: err.Error()}
-	}
-
-	usp.containerAPIRoute = conf.Bluemix.APIEndpointURL
-	usp.privateContainerAPIRoute = conf.Bluemix.PrivateAPIRoute
-	usp.riaasEndpoint = conf.VPC.G2EndpointURL
-	usp.privateRIAASEndpoint = conf.VPC.G2EndpointPrivateURL
-	usp.resourceGroupID = conf.VPC.G2ResourceGroupID
-	logger.Info("Initliazed unmanaged secret provider")
+	logger.Info("Initialized unmanaged secret provider")
 	return usp, nil
 }
 
 // GetDefaultIAMToken ...
-func (usp *UnmanagedSecretProvider) GetDefaultIAMToken(isFreshTokenRequired bool) (string, uint64, error) {
+func (usp *UnmanagedSecretProvider) GetDefaultIAMToken(reasonForCall string, isFreshTokenRequired bool) (string, uint64, error) {
 	usp.logger.Info("In GetDefaultIAMToken()")
 	return usp.authenticator.GetToken(true)
 }
 
 // GetIAMToken ...
-func (usp *UnmanagedSecretProvider) GetIAMToken(secret string, isFreshTokenRequired bool) (string, uint64, error) {
+func (usp *UnmanagedSecretProvider) GetIAMToken(reasonForCall, secret string, isFreshTokenRequired bool) (string, uint64, error) {
 	usp.logger.Info("In GetIAMToken()")
 	var authenticator auth.Authenticator
 	switch usp.authType {
@@ -227,4 +198,72 @@ func (usp *UnmanagedSecretProvider) GetPrivateContainerAPIRoute(readConfig bool)
 // GetResourceGroupID ...
 func (usp *UnmanagedSecretProvider) GetResourceGroupID() string {
 	return usp.resourceGroupID
+}
+
+// initEndpointsUsingCloudConf ...
+func (usp *UnmanagedSecretProvider) initEndpointsUsingCloudConf() error {
+	cloudConf, err := config.GetCloudConf(usp.logger, usp.k8sClient)
+	if err != nil {
+		return err
+	}
+
+	usp.region = cloudConf.Region
+	usp.containerAPIRoute = constructContainerAPIRoute(usp.region, cloudConf.ContainerAPIRoute)
+	usp.privateContainerAPIRoute = constructPrivateContainerAPIRoute(usp.region, cloudConf.PrivateContainerAPIRoute)
+	usp.riaasEndpoint = constructRIAASEndpoint(usp.region, cloudConf.RiaasEndpoint)
+	usp.privateRIAASEndpoint = constructPrivateRIAASEndpoint(usp.region, cloudConf.PrivateRIAASEndpoint)
+	usp.resourceGroupID = cloudConf.ResourceGroupID
+	if cloudConf.TokenExchangeURL != "" {
+		usp.logger.Info("Using the token exchange URL provided in cloud-conf")
+		usp.tokenExchangeURL = cloudConf.TokenExchangeURL
+		usp.authenticator.SetURL(usp.tokenExchangeURL)
+		return nil
+	}
+
+	usp.logger.Info("Token exchange URL not provided in cloud-conf, framing using cluster-info")
+	tokenExchangeURL, err := frameTokenExchangeURL(usp.k8sClient, usp.logger)
+	if err != nil {
+		usp.logger.Error("Error forming token exchange URL from cluster-info", zap.Error(err))
+		return utils.Error{Description: localutils.ErrInitSecretProvider, BackendError: "Unable to fetch token exchange URL"}
+	}
+
+	usp.tokenExchangeURL = tokenExchangeURL
+	usp.authenticator.SetURL(tokenExchangeURL)
+	return nil
+}
+
+// initEndpointsUsingStorageSecretStore ...
+func (usp *UnmanagedSecretProvider) initEndpointsUsingStorageSecretStore(providerType string) error {
+	data, err := k8s_utils.GetSecretData(usp.k8sClient, utils.STORAGE_SECRET_STORE_SECRET, utils.SECRET_STORE_FILE)
+	if err != nil {
+		return err
+	}
+
+	conf, err := config.ParseConfig(usp.logger, data)
+	if err != nil {
+		return err
+	}
+
+	usp.containerAPIRoute = conf.Bluemix.APIEndpointURL
+	usp.privateContainerAPIRoute = conf.Bluemix.PrivateAPIRoute
+	usp.riaasEndpoint = conf.VPC.G2EndpointURL
+	usp.privateRIAASEndpoint = conf.VPC.G2EndpointPrivateURL
+	usp.resourceGroupID = conf.VPC.G2ResourceGroupID
+
+	tokenExchangeURL, err := config.GetTokenExchangeURLfromStorageSecretStore(*conf, providerType)
+	if err == nil {
+		usp.tokenExchangeURL = tokenExchangeURL
+		usp.authenticator.SetURL(tokenExchangeURL)
+		return nil
+	}
+
+	usp.logger.Info("Unable to fetch token exchange URL from storage-secret-store")
+	tokenExchangeURL, err = frameTokenExchangeURL(usp.k8sClient, usp.logger)
+	if err != nil {
+		usp.logger.Error("Error forming token exchange URL from cluster-info", zap.Error(err))
+		return err
+	}
+	usp.tokenExchangeURL = tokenExchangeURL
+	usp.authenticator.SetURL(tokenExchangeURL)
+	return nil
 }

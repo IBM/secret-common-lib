@@ -44,7 +44,7 @@ const (
 // getEndpoint ...
 func getEndpoint(endpointName, endpointValue string, k8sClient k8s_utils.KubernetesClient, logger *zap.Logger) (string, error) {
 	// Fetching endpoint using Cloud conf
-	cloudConf, err := getCloudConf(logger, k8sClient)
+	cloudConf, err := config.GetCloudConf(logger, k8sClient)
 
 	// Check if the endpoint fetched from cloud-conf is reachable
 	if err == nil {
@@ -99,21 +99,55 @@ func getEndpoint(endpointName, endpointValue string, k8sClient k8s_utils.Kuberne
 }
 
 // constructRIAASEndpoint ...
-func constructRIAASEndpoint(region string) string {
-	return strings.Replace(riaasEndpoint, "region", region, 1)
+func constructRIAASEndpoint(region, url string) string {
+	if url != "" {
+		return url
+	}
+	if region != "" {
+		return strings.Replace(riaasEndpoint, "region", region, 1)
+	}
+	return ""
 }
 
 // constructPrivateRIAASEndpoint ...
-func constructPrivateRIAASEndpoint(region string) string {
-	return strings.Replace(privateRIAASEndpoint, "region", region, 1)
+func constructPrivateRIAASEndpoint(region, url string) string {
+	if url != "" {
+		return url
+	}
+	if region != "" {
+		return strings.Replace(privateRIAASEndpoint, "region", region, 1)
+	}
+	return ""
 }
 
 // constructContainerAPIRoute ...
-func constructContainerAPIRoute(region string) string {
-	return strings.Replace(containerAPIRoute, "region", region, 1)
+func constructContainerAPIRoute(region, url string) string {
+	if url != "" {
+		return url
+	}
+	if region != "" {
+		return strings.Replace(containerAPIRoute, "region", region, 1)
+	}
+	return ""
 }
 
 // constructPrivateContainerAPIRoute ...
-func constructPrivateContainerAPIRoute(region string) string {
-	return strings.Replace(privateContainerAPIRoute, "region", region, 1)
+func constructPrivateContainerAPIRoute(region, url string) string {
+	if url != "" {
+		return url
+	}
+	if region != "" {
+		return strings.Replace(privateContainerAPIRoute, "region", region, 1)
+	}
+	return ""
+}
+
+// frameTokenExchangeURL ...
+func frameTokenExchangeURL(kc k8s_utils.KubernetesClient, logger *zap.Logger) (string, error) {
+	cc, err := config.GetClusterInfo(kc, logger)
+	if err != nil {
+		return "", err
+	}
+
+	return config.FrameTokenExchangeURLFromClusterInfo(cc, logger), nil
 }

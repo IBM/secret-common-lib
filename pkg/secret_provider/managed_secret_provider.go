@@ -62,7 +62,7 @@ func newManagedSecretProvider(logger *zap.Logger, providerType string) (*Managed
 }
 
 // GetDefaultIAMToken ...
-func (msp *ManagedSecretProvider) GetDefaultIAMToken(freshTokenRequired bool) (string, uint64, error) {
+func (msp *ManagedSecretProvider) GetDefaultIAMToken(reasonForCall string, freshTokenRequired bool) (string, uint64, error) {
 	var tokenlifetime uint64
 	// Connecting to sidecar
 	msp.logger.Info("Connecting to sidecar")
@@ -88,7 +88,7 @@ func (msp *ManagedSecretProvider) GetDefaultIAMToken(freshTokenRequired bool) (s
 }
 
 // GetIAMToken ...
-func (msp *ManagedSecretProvider) GetIAMToken(secret string, freshTokenRequired bool) (string, uint64, error) {
+func (msp *ManagedSecretProvider) GetIAMToken(reasonForCall, secret string, freshTokenRequired bool) (string, uint64, error) {
 	var tokenlifetime uint64
 
 	msp.logger.Info("Connecting to sidecar")
