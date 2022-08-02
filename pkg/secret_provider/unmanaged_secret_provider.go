@@ -51,11 +51,11 @@ func newUnmanagedSecretProvider(logger *zap.Logger, providerType string, secretK
 		logger.Info("Error fetching k8s client set", zap.Error(err))
 		return nil, err
 	}
-	return initUnmanagedSecretProvider(logger, kc, providerType, secretKey...)
+	return InitUnmanagedSecretProvider(logger, kc, providerType, secretKey...)
 }
 
 // initUnmanagedSecretProvider ...
-func initUnmanagedSecretProvider(logger *zap.Logger, kc k8s_utils.KubernetesClient, providerType string, secretKey ...string) (*UnmanagedSecretProvider, error) {
+func InitUnmanagedSecretProvider(logger *zap.Logger, kc k8s_utils.KubernetesClient, providerType string, secretKey ...string) (*UnmanagedSecretProvider, error) {
 	authenticator, authType, err := auth.NewAuthenticator(logger, kc, providerType, secretKey...)
 	if err != nil {
 		logger.Error("Error initializing unmanaged secret provider", zap.Error(err))
@@ -235,30 +235,27 @@ func (usp *UnmanagedSecretProvider) initEndpointsUsingCloudConf() error {
 // initEndpointsUsingStorageSecretStore ...
 func (usp *UnmanagedSecretProvider) initEndpointsUsingStorageSecretStore(providerType string) error {
 	data, err := k8s_utils.GetSecretData(usp.k8sClient, utils.STORAGE_SECRET_STORE_SECRET, utils.SECRET_STORE_FILE)
-	if err != nil {
-		return err
-	}
-
-	conf, err := config.ParseConfig(usp.logger, data)
-	if err != nil {
-		return err
-	}
-
-	usp.containerAPIRoute = conf.Bluemix.APIEndpointURL
-	usp.privateContainerAPIRoute = conf.Bluemix.PrivateAPIRoute
-	usp.riaasEndpoint = conf.VPC.G2EndpointURL
-	usp.privateRIAASEndpoint = conf.VPC.G2EndpointPrivateURL
-	usp.resourceGroupID = conf.VPC.G2ResourceGroupID
-
-	tokenExchangeURL, err := config.GetTokenExchangeURLfromStorageSecretStore(*conf, providerType)
+	var conf *config.Config
 	if err == nil {
-		usp.tokenExchangeURL = tokenExchangeURL
-		usp.authenticator.SetURL(tokenExchangeURL)
-		return nil
+		conf, _ = config.ParseConfig(usp.logger, data)
+	}
+
+	if conf != nil {
+		usp.containerAPIRoute = conf.Bluemix.APIEndpointURL
+		usp.privateContainerAPIRoute = conf.Bluemix.PrivateAPIRoute
+		usp.riaasEndpoint = conf.VPC.G2EndpointURL
+		usp.privateRIAASEndpoint = conf.VPC.G2EndpointPrivateURL
+		usp.resourceGroupID = conf.VPC.G2ResourceGroupID
+		tokenExchangeURL, err := config.GetTokenExchangeURLfromStorageSecretStore(*conf, providerType)
+		if err == nil {
+			usp.tokenExchangeURL = tokenExchangeURL
+			usp.authenticator.SetURL(tokenExchangeURL)
+			return nil
+		}
 	}
 
 	usp.logger.Info("Unable to fetch token exchange URL from storage-secret-store")
-	tokenExchangeURL, err = frameTokenExchangeURL(usp.k8sClient, usp.logger)
+	tokenExchangeURL, err := frameTokenExchangeURL(usp.k8sClient, usp.logger)
 	if err != nil {
 		usp.logger.Error("Error forming token exchange URL from cluster-info", zap.Error(err))
 		return err

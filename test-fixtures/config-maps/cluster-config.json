@@ -1,0 +1,8 @@
+{
+  "cluster_id": "my-key",
+  "cluster_name": "cluster-name",
+  "cluster_type": "vpc-classic_cruiser",
+  "datacenter": "dal10",
+  "account_id": "t242",
+  "master_url": "https://c108.us-south.containers.cloud.ibm.com:30600"
+}
