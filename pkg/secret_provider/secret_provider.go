@@ -34,7 +34,7 @@ const (
 )
 
 // NewSecretProvider initializes new secret provider
-// Note: providerType which can be VPC, Bluemix, Softlayer is only used when we need to read storage-secret-store, this is kept to support backward compatibility.
+// Note: providerType which can be VPC, Bluemix, Softlayer (the constants defined above) and is only used when we need to read storage-secret-store, this is kept to support backward compatibility.
 func NewSecretProvider(providerType string, secretKey ...string) (sp.SecretProviderInterface, error) {
 	var managed bool
 	if iksEnabled := os.Getenv("IKS_ENABLED"); strings.ToLower(iksEnabled) == "true" {
