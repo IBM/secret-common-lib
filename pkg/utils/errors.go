@@ -28,4 +28,7 @@ const (
 
 	// ErrEmptyEndpoint ...
 	ErrEmptyEndpoint = "%s endpoint not found"
+
+	// ErrMultipleKeysUnsupported ...
+	ErrMultipleKeysUnsupported = "Mutiple secret keys are unsupported"
 )

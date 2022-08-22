@@ -23,6 +23,7 @@ import (
 	"time"
 
 	localutils "github.com/IBM/secret-common-lib/pkg/utils"
+	"github.com/IBM/secret-utils-lib/pkg/config"
 	"github.com/IBM/secret-utils-lib/pkg/k8s_utils"
 	"github.com/IBM/secret-utils-lib/pkg/utils"
 	sp "github.com/IBM/secret-utils-lib/secretprovider"
@@ -49,6 +50,13 @@ type ManagedSecretProvider struct {
 // newManagedSecretProvider ...
 func newManagedSecretProvider(logger *zap.Logger, providerType string) (*ManagedSecretProvider, error) {
 	logger.Info("Connecting to sidecar")
+	kc, err := k8s_utils.Getk8sClientSet(logger)
+	if err != nil {
+		logger.Info("Error fetching k8s client set", zap.Error(err))
+		return nil, err
+	}
+
+	// Connecting to sidecar
 	conn, err := grpc.Dial(*endpoint, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithContextDialer(unixConnect))
 	if err != nil {
 		logger.Error("Error establishing grpc connection to secret sidecar", zap.Error(err))
@@ -59,14 +67,30 @@ func newManagedSecretProvider(logger *zap.Logger, providerType string) (*Managed
 	defer cancel()
 	defer conn.Close()
 
+	// NewSecretProvider call to sidecar
 	_, err = c.NewSecretProvider(ctx, &sp.InitRequest{ProviderType: providerType})
 	if err != nil {
 		logger.Error("Error initiliazing managed secret provider", zap.Error(err))
 		return nil, err
 	}
 
+	// Reading endpoints
+	msp := &ManagedSecretProvider{logger: logger, k8sClient: kc}
+	err = msp.initEndpointsUsingCloudConf()
+	if err == nil {
+		logger.Info("Initialized managed secret provider")
+		return msp, nil
+	}
+
+	logger.Info("Unable to fetch endpoints from cloud-conf", zap.Error(err))
+	err = msp.initEndpointsUsingStorageSecretStore()
+	if err != nil {
+		logger.Error("Unable to fetch endpoints from storage-secret-store", zap.Error(err))
+		return nil, err
+	}
+
 	logger.Info("Initialized managed secret provider")
-	return &ManagedSecretProvider{logger: logger}, nil
+	return msp, nil
 }
 
 // GetDefaultIAMToken ...
@@ -202,4 +226,40 @@ func (msp *ManagedSecretProvider) GetPrivateContainerAPIRoute(readConfig bool) (
 // GetResourceGroupID ...
 func (msp *ManagedSecretProvider) GetResourceGroupID() string {
 	return msp.resourceGroupID
+}
+
+// initEndpointsUsingCloudConf ...
+func (msp *ManagedSecretProvider) initEndpointsUsingCloudConf() error {
+	cloudConf, err := config.GetCloudConf(msp.logger, msp.k8sClient)
+	if err != nil {
+		return err
+	}
+
+	msp.region = cloudConf.Region
+	msp.containerAPIRoute = cloudConf.ContainerAPIRoute
+	msp.privateContainerAPIRoute = cloudConf.PrivateContainerAPIRoute
+	msp.riaasEndpoint = cloudConf.RiaasEndpoint
+	msp.privateRIAASEndpoint = cloudConf.PrivateRIAASEndpoint
+	msp.resourceGroupID = cloudConf.ResourceGroupID
+	return nil
+}
+
+// initEndpointsUsingStorageSecretStore ...
+func (msp *ManagedSecretProvider) initEndpointsUsingStorageSecretStore() error {
+	data, err := k8s_utils.GetSecretData(msp.k8sClient, utils.STORAGE_SECRET_STORE_SECRET, utils.SECRET_STORE_FILE)
+	if err != nil {
+		return err
+	}
+
+	conf, err := config.ParseConfig(msp.logger, data)
+	if err != nil {
+		return err
+	}
+
+	msp.containerAPIRoute = conf.Bluemix.APIEndpointURL
+	msp.privateContainerAPIRoute = conf.Bluemix.PrivateAPIRoute
+	msp.riaasEndpoint = conf.VPC.G2EndpointURL
+	msp.privateRIAASEndpoint = conf.VPC.G2EndpointPrivateURL
+	msp.resourceGroupID = conf.VPC.G2ResourceGroupID
+	return nil
 }

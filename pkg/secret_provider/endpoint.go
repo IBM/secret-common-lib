@@ -18,27 +18,12 @@ package secret_provider
 
 import (
 	"fmt"
-	"strings"
 
 	localutils "github.com/IBM/secret-common-lib/pkg/utils"
 	"github.com/IBM/secret-utils-lib/pkg/config"
 	"github.com/IBM/secret-utils-lib/pkg/k8s_utils"
 	"github.com/IBM/secret-utils-lib/pkg/utils"
 	"go.uber.org/zap"
-)
-
-const (
-	// riaasEndpoint ...
-	riaasEndpoint = "https://region.iaas.cloud.ibm.com"
-
-	// privateRIAASEndpoint ...
-	privateRIAASEndpoint = "https://region.private.iaas.cloud.ibm.com"
-
-	// containerAPIRoute ...
-	containerAPIRoute = "https://region.containers.cloud.ibm.com"
-
-	// privateContainerAPIRoute ...
-	privateContainerAPIRoute = "https://private.region.containers.cloud.ibm.com"
 )
 
 // getEndpoint ...
@@ -96,50 +81,6 @@ func getEndpoint(endpointName, endpointValue string, k8sClient k8s_utils.Kuberne
 
 	logger.Error(fmt.Sprintf(localutils.ErrEmptyEndpoint, endpointName))
 	return "", utils.Error{Description: fmt.Sprintf(localutils.ErrEmptyEndpoint, endpointName)}
-}
-
-// constructRIAASEndpoint ...
-func constructRIAASEndpoint(region, url string) string {
-	if url != "" {
-		return url
-	}
-	if region != "" {
-		return strings.Replace(riaasEndpoint, "region", region, 1)
-	}
-	return ""
-}
-
-// constructPrivateRIAASEndpoint ...
-func constructPrivateRIAASEndpoint(region, url string) string {
-	if url != "" {
-		return url
-	}
-	if region != "" {
-		return strings.Replace(privateRIAASEndpoint, "region", region, 1)
-	}
-	return ""
-}
-
-// constructContainerAPIRoute ...
-func constructContainerAPIRoute(region, url string) string {
-	if url != "" {
-		return url
-	}
-	if region != "" {
-		return strings.Replace(containerAPIRoute, "region", region, 1)
-	}
-	return ""
-}
-
-// constructPrivateContainerAPIRoute ...
-func constructPrivateContainerAPIRoute(region, url string) string {
-	if url != "" {
-		return url
-	}
-	if region != "" {
-		return strings.Replace(privateContainerAPIRoute, "region", region, 1)
-	}
-	return ""
 }
 
 // frameTokenExchangeURL ...

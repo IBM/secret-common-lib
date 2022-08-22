@@ -208,10 +208,10 @@ func (usp *UnmanagedSecretProvider) initEndpointsUsingCloudConf() error {
 	}
 
 	usp.region = cloudConf.Region
-	usp.containerAPIRoute = constructContainerAPIRoute(usp.region, cloudConf.ContainerAPIRoute)
-	usp.privateContainerAPIRoute = constructPrivateContainerAPIRoute(usp.region, cloudConf.PrivateContainerAPIRoute)
-	usp.riaasEndpoint = constructRIAASEndpoint(usp.region, cloudConf.RiaasEndpoint)
-	usp.privateRIAASEndpoint = constructPrivateRIAASEndpoint(usp.region, cloudConf.PrivateRIAASEndpoint)
+	usp.containerAPIRoute = cloudConf.ContainerAPIRoute
+	usp.privateContainerAPIRoute = cloudConf.PrivateContainerAPIRoute
+	usp.riaasEndpoint = cloudConf.RiaasEndpoint
+	usp.privateRIAASEndpoint = cloudConf.PrivateRIAASEndpoint
 	usp.resourceGroupID = cloudConf.ResourceGroupID
 	if cloudConf.TokenExchangeURL != "" {
 		usp.logger.Info("Using the token exchange URL provided in cloud-conf")

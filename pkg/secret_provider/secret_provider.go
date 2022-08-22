@@ -20,8 +20,9 @@ import (
 	"os"
 	"strings"
 
+	localutils "github.com/IBM/secret-common-lib/pkg/utils"
 	sp "github.com/IBM/secret-utils-lib/pkg/secret_provider"
-
+	"github.com/IBM/secret-utils-lib/pkg/utils"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -39,6 +40,11 @@ func NewSecretProvider(providerType string, secretKey ...string) (sp.SecretProvi
 		managed = true
 	}
 	logger := setUpLogger(managed)
+	if len(secretKey) > 1 {
+		logger.Error("Multiple secret keys are not supported")
+		return nil, utils.Error{Description: localutils.ErrMultipleKeysUnsupported}
+	}
+
 	var secretprovider sp.SecretProviderInterface
 	var err error
 	if managed && len(secretKey) == 0 {
