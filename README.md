@@ -33,7 +33,7 @@ type SecretProviderInterface interface {
 ```
 
 ## Pre requisites
-- An environment variable IKS_ENABLED can to be set to true or false. If it is not set, it will be considered false.
+- An environment variable IKS_ENABLED can to be set to true or false. If it is not set, it will be considered false. The variable needs to be set in the deployment file of the application which is using this library.
 - A k8s secret must be present in the same namespace where the pod (the application in which this code is used) is deployed.
 - The format of the k8s secret should be either of one as mentioned in the following
 1. ibm-cloud-credentials
@@ -124,7 +124,8 @@ metadata:
 - If the `cloud-conf` config map is not present, the same endpoints will be read from the k8s secret `storage-secret-store` whose format is shown above. 
 - Note: As of now, in IKS/ROKS clusters, `cloud-conf` config map and `ibm-cloud-credentials` secret are not present by default, this needs to be created manually. This will be automated in the future. As of now, even if `cloud-conf` or `ibm-cloud-credentials` is not created, the library uses `storage-secret-store` for reading `api-key`,`endpoints` and `resource group id`, hence supporting backward compatibility. Going forward `storage-secret-store` will be completely deprecated.
 - The following changes needs to be done in deployment file of the application that is using this library:
-1. Under the volumes, the following entity needs to be added
+1. In the deployment file, IKS_ENABLED needs be added under `env`, and set to true if the application uses managed secret provider.
+2. Under the volumes, the following entity needs to be added
 ```
 volumes:
   - name: vault-token
@@ -134,13 +135,13 @@ volumes:
           path: vault-token
           expirationSeconds: 600
 ```
-2. If you are using unmanaged secret provider (more about the same, is described later in this READme), the volume mentioned above needs to be mounted inside container volumeMounts as shown below.
+3. If you are using unmanaged secret provider (more about the same, is described later in this READme), the volume mentioned above needs to be mounted inside container volumeMounts as shown below.
 ```
 volumeMounts:
 - mountPath: /var/run/secrets/tokens
   name: vault-token
 ```
-3. If you are using managed secret provider, the following container config needs to be added in the deployment file
+4. If you are using managed secret provider, the following container config needs to be added in the deployment file
 ```
 - name: storage-secret-sidecar
   image: icr.io/obs/armada-storage-secret:<release-tag>
