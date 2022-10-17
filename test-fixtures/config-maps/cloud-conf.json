@@ -1,0 +1,9 @@
+{
+   "region": "au-syd",
+   "riaas_endpoint": "https://au-syd.iaas.cloud.ibm.com",
+   "riaas_private_endpoint": "https://au-syd.private.iaas.cloud.ibm.com",
+   "containers_api_route": "",
+   "containers_api_route_private": "https://private.au-syd.containers.cloud.ibm.com",
+   "token_exchange_url": "https://iam.cloud.ibm.com",
+   "resource_group_id": ""
+ }

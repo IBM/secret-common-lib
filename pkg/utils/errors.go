@@ -19,4 +19,16 @@ package utils
 const (
 	// ErrDecryptionNotSupported ...
 	ErrDecryptionNotSupported = "API key is encrypted as per the configuration, decryption of the same is not supported."
+
+	// ErrorFetchingEndpoint ...
+	ErrorFetchingEndpoint = "Unable to fetch %s endpoint"
+
+	// ErrInitSecretProvider ...
+	ErrInitSecretProvider = "Error initializing secret provider"
+
+	// ErrEmptyEndpoint ...
+	ErrEmptyEndpoint = "%s endpoint not found"
+
+	// ErrMultipleKeysUnsupported ...
+	ErrMultipleKeysUnsupported = "Mutiple secret keys are unsupported"
 )

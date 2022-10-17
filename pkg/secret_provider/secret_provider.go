@@ -20,25 +20,38 @@ import (
 	"os"
 	"strings"
 
+	localutils "github.com/IBM/secret-common-lib/pkg/utils"
 	sp "github.com/IBM/secret-utils-lib/pkg/secret_provider"
-
+	"github.com/IBM/secret-utils-lib/pkg/utils"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
+const (
+	VPC       string = "vpc"
+	Bluemix   string = "bluemix"
+	Softlayer string = "softlayer"
+)
+
 // NewSecretProvider initializes new secret provider
-func NewSecretProvider() (sp.SecretProviderInterface, error) {
+// Note: providerType which can be VPC, Bluemix, Softlayer (the constants defined above) and is only used when we need to read storage-secret-store, this is kept to support backward compatibility.
+func NewSecretProvider(providerType string, secretKey ...string) (sp.SecretProviderInterface, error) {
 	var managed bool
 	if iksEnabled := os.Getenv("IKS_ENABLED"); strings.ToLower(iksEnabled) == "true" {
 		managed = true
 	}
 	logger := setUpLogger(managed)
+	if len(secretKey) > 1 {
+		logger.Error("Multiple secret keys are not supported")
+		return nil, utils.Error{Description: localutils.ErrMultipleKeysUnsupported}
+	}
+
 	var secretprovider sp.SecretProviderInterface
 	var err error
-	if managed {
-		secretprovider, err = newManagedSecretProvider(logger)
+	if managed && len(secretKey) == 0 {
+		secretprovider, err = newManagedSecretProvider(logger, providerType)
 	} else {
-		secretprovider, err = newUnmanagedSecretProvider(logger)
+		secretprovider, err = newUnmanagedSecretProvider(logger, providerType, secretKey...)
 	}
 
 	if err != nil {

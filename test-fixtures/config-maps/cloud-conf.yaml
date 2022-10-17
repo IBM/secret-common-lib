@@ -1,0 +1,16 @@
+apiVersion: v1
+data:
+ cloud-conf.json: |
+  {
+   "region": "region",
+   "riaas_endpoint": "",
+   "riaas_private_endpoint": "",
+   "containers_api_route": "",
+   "containers_api_route_private": "",
+   "token_exchange_url": "",
+   "resource_group_id": ""
+  }
+kind: ConfigMap
+metadata:
+ name: cloud-conf
+ namespace: kube-system

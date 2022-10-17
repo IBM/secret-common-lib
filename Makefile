@@ -10,7 +10,7 @@ ARCH=$(shell docker version -f {{.Client.Arch}})
 GO111MODULE_FLAG?=on
 export GO111MODULE=$(GO111MODULE_FLAG)
 
-export LINT_VERSION="1.27.0"
+export LINT_VERSION="1.45.2"
 
 COLOR_YELLOW=\033[0;33m
 COLOR_RESET=\033[0m
