@@ -48,7 +48,7 @@ type ManagedSecretProvider struct {
 }
 
 // newManagedSecretProvider ...
-func newManagedSecretProvider(logger *zap.Logger, providerType string) (*ManagedSecretProvider, error) {
+func newManagedSecretProvider(logger *zap.Logger, optionalArgs ...string) (*ManagedSecretProvider, error) {
 	logger.Info("Connecting to sidecar")
 	kc, err := k8s_utils.Getk8sClientSet(logger)
 	if err != nil {
@@ -56,22 +56,27 @@ func newManagedSecretProvider(logger *zap.Logger, providerType string) (*Managed
 		return nil, err
 	}
 
-	// Connecting to sidecar
-	conn, err := grpc.Dial(*endpoint, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithContextDialer(unixConnect))
-	if err != nil {
-		logger.Error("Error establishing grpc connection to secret sidecar", zap.Error(err))
-		return nil, utils.Error{Description: "Error establishing grpc connection to secret sidecar", BackendError: err.Error()}
-	}
-	c := sp.NewSecretProviderClient(conn)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
-	defer conn.Close()
 
-	// NewSecretProvider call to sidecar
-	_, err = c.NewSecretProvider(ctx, &sp.InitRequest{ProviderType: providerType})
+	// Connecting to sidecar
+	conn, err := grpc.DialContext(ctx, *endpoint, grpc.WithInsecure(), grpc.WithBlock(), grpc.WithContextDialer(unixConnect))
+	defer conn.Close()
 	if err != nil {
-		logger.Error("Error initiliazing managed secret provider", zap.Error(err))
-		return nil, err
+		logger.Error("Error establishing grpc connection to secret sidecar", zap.Error(err))
+		return nil, utils.Error{Description: "Error establishing grpc connection", BackendError: err.Error()}
+	}
+
+	// If any providerType - vpc, bluemix, softlayer is provided, then make a call to sidecar
+	// Else, in the case of
+	if len(optionalArgs) != 0 {
+		c := sp.NewSecretProviderClient(conn)
+		// NewSecretProvider call to sidecar
+		_, err = c.NewSecretProvider(ctx, &sp.InitRequest{ProviderType: optionalArgs[0]})
+		if err != nil {
+			logger.Error("Error initiliazing managed secret provider", zap.Error(err))
+			return nil, err
+		}
 	}
 
 	// Reading endpoints
@@ -94,7 +99,7 @@ func newManagedSecretProvider(logger *zap.Logger, providerType string) (*Managed
 }
 
 // GetDefaultIAMToken ...
-func (msp *ManagedSecretProvider) GetDefaultIAMToken(reasonForCall string, freshTokenRequired bool) (string, uint64, error) {
+func (msp *ManagedSecretProvider) GetDefaultIAMToken(freshTokenRequired bool, reasonForCall ...string) (string, uint64, error) {
 	var tokenlifetime uint64
 	// Connecting to sidecar
 	msp.logger.Info("Connecting to sidecar")
@@ -109,7 +114,12 @@ func (msp *ManagedSecretProvider) GetDefaultIAMToken(reasonForCall string, fresh
 	defer cancel()
 	defer conn.Close()
 
-	response, err := c.GetDefaultIAMToken(ctx, &sp.TokenRequest{ReasonForCall: reasonForCall, IsFreshTokenRequired: freshTokenRequired})
+	tokenReq := new(sp.Request)
+	tokenReq.IsFreshTokenRequired = freshTokenRequired
+	if len(reasonForCall) != 0 {
+		tokenReq.ReasonForCall = reasonForCall[0]
+	}
+	response, err := c.GetDefaultIAMToken(ctx, tokenReq)
 	if err != nil {
 		msp.logger.Error("Error fetching IAM token", zap.Error(err))
 		return "", tokenlifetime, err
@@ -120,7 +130,7 @@ func (msp *ManagedSecretProvider) GetDefaultIAMToken(reasonForCall string, fresh
 }
 
 // GetIAMToken ...
-func (msp *ManagedSecretProvider) GetIAMToken(reasonForCall, secret string, freshTokenRequired bool) (string, uint64, error) {
+func (msp *ManagedSecretProvider) GetIAMToken(secret string, freshTokenRequired bool, reasonForCall ...string) (string, uint64, error) {
 	var tokenlifetime uint64
 
 	msp.logger.Info("Connecting to sidecar")
@@ -135,7 +145,13 @@ func (msp *ManagedSecretProvider) GetIAMToken(reasonForCall, secret string, fres
 	defer cancel()
 	defer conn.Close()
 
-	response, err := c.GetIAMToken(ctx, &sp.TokenRequest{ReasonForCall: reasonForCall, Secret: secret, IsFreshTokenRequired: freshTokenRequired})
+	tokenReq := new(sp.Request)
+	tokenReq.IsFreshTokenRequired = freshTokenRequired
+	tokenReq.Secret = secret
+	if len(reasonForCall) != 0 {
+		tokenReq.ReasonForCall = reasonForCall[0]
+	}
+	response, err := c.GetIAMToken(ctx, tokenReq)
 	if err != nil {
 		msp.logger.Error("Error fetching IAM token", zap.Error(err))
 		return "", tokenlifetime, err
