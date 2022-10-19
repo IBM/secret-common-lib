@@ -28,31 +28,63 @@ import (
 )
 
 const (
-	VPC       string = "vpc"
-	Bluemix   string = "bluemix"
-	Softlayer string = "softlayer"
+	ProviderType string = "ProviderType"
+	SecretKey    string = "SecretKey"
+	VPC          string = "vpc"
+	Bluemix      string = "bluemix"
+	Softlayer    string = "softlayer"
 )
 
 // NewSecretProvider initializes new secret provider
 // Note: providerType which can be VPC, Bluemix, Softlayer (the constants defined above) and is only used when we need to read storage-secret-store, this is kept to support backward compatibility.
-func NewSecretProvider(optionalArgs ...string) (sp.SecretProviderInterface, error) {
+func NewSecretProvider(optionalArgs ...map[string]string) (sp.SecretProviderInterface, error) {
 	var managed bool
 	if iksEnabled := os.Getenv("IKS_ENABLED"); strings.ToLower(iksEnabled) == "true" {
 		managed = true
 	}
 	logger := setUpLogger(managed)
-	if len(optionalArgs) > 1 {
-		logger.Error("Only 1 or no arguments is accepted while initializing secret provider")
-		return nil, utils.Error{Description: localutils.ErrMultipleKeysUnsupported}
+
+	err := validateArguments(optionalArgs...)
+	if err != nil {
+		logger.Error("Error seen while validating arguments", zap.Error(err), zap.Any("Provided arguments", optionalArgs))
+		return nil, err
 	}
 
 	if managed {
-		if len(optionalArgs) == 0 || isProviderType(optionalArgs[0]) {
-			return newManagedSecretProvider(logger, optionalArgs...)
+		if len(optionalArgs) == 0 {
+			return newManagedSecretProvider(logger)
+		}
+		if providerName, ok := optionalArgs[0][ProviderType]; ok {
+			return newManagedSecretProvider(logger, providerName)
 		}
 	}
 
 	return newUnmanagedSecretProvider(logger, optionalArgs...)
+}
+
+// validateArguments ...
+func validateArguments(optionalArgs ...map[string]string) error {
+	if len(optionalArgs) > 1 {
+		return utils.Error{Description: localutils.ErrMultipleKeysUnsupported}
+	}
+
+	if len(optionalArgs) == 1 {
+		providerName, providerExists := optionalArgs[0][ProviderType]
+		secretKeyName, secretKeyExists := optionalArgs[0][SecretKey]
+		if !providerExists && !secretKeyExists {
+			return utils.Error{Description: localutils.ErrInvalidArgument}
+		}
+
+		if secretKeyName == "" {
+			return utils.Error{Description: localutils.ErrEmptySecretKeyProvided}
+		}
+
+		if providerExists && !isProviderType(providerName) {
+			return utils.Error{Description: localutils.ErrInvalidProviderType}
+		}
+	}
+
+	return nil
 }
 
 // isProviderType ...

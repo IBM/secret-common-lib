@@ -45,7 +45,7 @@ type UnmanagedSecretProvider struct {
 }
 
 // newUnmanagedSecretProvider ...
-func newUnmanagedSecretProvider(logger *zap.Logger, optionalArgs ...string) (*UnmanagedSecretProvider, error) {
+func newUnmanagedSecretProvider(logger *zap.Logger, optionalArgs ...map[string]string) (*UnmanagedSecretProvider, error) {
 	kc, err := k8s_utils.Getk8sClientSet(logger)
 	if err != nil {
 		logger.Info("Error fetching k8s client set", zap.Error(err))
@@ -55,7 +55,7 @@ func newUnmanagedSecretProvider(logger *zap.Logger, optionalArgs ...string) (*Un
 }
 
 // initUnmanagedSecretProvider ...
-func InitUnmanagedSecretProvider(logger *zap.Logger, kc k8s_utils.KubernetesClient, optionalArgs ...string) (*UnmanagedSecretProvider, error) {
+func InitUnmanagedSecretProvider(logger *zap.Logger, kc k8s_utils.KubernetesClient, optionalArgs ...map[string]string) (*UnmanagedSecretProvider, error) {
 	authenticator, authType, err := auth.NewAuthenticator(logger, kc, optionalArgs...)
 	if err != nil {
 		logger.Error("Error initializing unmanaged secret provider", zap.Error(err))
@@ -91,13 +91,14 @@ func InitUnmanagedSecretProvider(logger *zap.Logger, kc k8s_utils.KubernetesClie
 		return usp, nil
 	}
 
-	var providerType string
-	if len(optionalArgs) == 0 || !isProviderType(optionalArgs[0]) {
-		providerType = VPC
-	} else {
-		providerType = optionalArgs[0]
+	var providerName string
+	if len(optionalArgs) == 1 {
+		providerName, _ = optionalArgs[0][ProviderType]
 	}
-	err = usp.initEndpointsUsingStorageSecretStore(providerType)
+	if providerName == "" {
+		providerName = utils.VPC
+	}
+	err = usp.initEndpointsUsingStorageSecretStore(providerName)
 	if err != nil {
 		logger.Error("Error initializing secret provider")
 		return nil, utils.Error{Description: localutils.ErrInitSecretProvider, BackendError: err.Error()}
