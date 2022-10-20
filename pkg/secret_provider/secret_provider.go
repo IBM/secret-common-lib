@@ -75,7 +75,7 @@ func validateArguments(optionalArgs ...map[string]string) error {
 			return utils.Error{Description: localutils.ErrInvalidArgument}
 		}
 
-		if secretKeyName == "" {
+		if secretKeyExists && secretKeyName == "" {
 			return utils.Error{Description: localutils.ErrEmptySecretKeyProvided}
 		}
 
