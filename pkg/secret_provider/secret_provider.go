@@ -50,35 +50,41 @@ func NewSecretProvider(optionalArgs ...map[string]string) (sp.SecretProviderInte
 		return nil, err
 	}
 
-	if managed {
+	if managed { // If IKS_ENABLED is set to true
 		if len(optionalArgs) == 0 {
 			return newManagedSecretProvider(logger)
 		}
+		// If ProviderType is given, fetch providerName and pass to initialise managed secret provider
 		if providerName, ok := optionalArgs[0][ProviderType]; ok {
 			return newManagedSecretProvider(logger, providerName)
 		}
 	}
 
+	// If a secret key was passed, or IKS ENABLED was set to false, initialise unmanaged secret provider
 	return newUnmanagedSecretProvider(logger, optionalArgs...)
 }
 
 // validateArguments ...
 func validateArguments(optionalArgs ...map[string]string) error {
+	// Only one argument is expected
 	if len(optionalArgs) > 1 {
 		return utils.Error{Description: localutils.ErrMultipleKeysUnsupported}
 	}
 
 	if len(optionalArgs) == 1 {
+		// If an argument is given and it is neither ProviderType nor SecretKey, return error
 		providerName, providerExists := optionalArgs[0][ProviderType]
 		secretKeyName, secretKeyExists := optionalArgs[0][SecretKey]
 		if !providerExists && !secretKeyExists {
 			return utils.Error{Description: localutils.ErrInvalidArgument}
 		}
 
+		// If secretKeyName is empty return error
 		if secretKeyExists && secretKeyName == "" {
 			return utils.Error{Description: localutils.ErrEmptySecretKeyProvided}
 		}
 
+		// If ProviderType is given, but it is invalid, return error
 		if providerExists && !isProviderType(providerName) {
 			return utils.Error{Description: localutils.ErrInvalidProviderType}
 		}

@@ -68,7 +68,7 @@ func newManagedSecretProvider(logger *zap.Logger, optionalArgs ...string) (*Mana
 	}
 
 	// If any providerType - vpc, bluemix, softlayer is provided, then make a call to sidecar
-	// Else, in the case of
+	// If it is not provided, no need to make a call to sidecar, on first GetDefaultIAMToken call, secret provider will be initialised
 	if len(optionalArgs) != 0 {
 		c := sp.NewSecretProviderClient(conn)
 		// NewSecretProvider call to sidecar

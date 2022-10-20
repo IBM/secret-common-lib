@@ -200,8 +200,8 @@ volumes:
 - If IKS_ENABLED is set to true, a managed secret provider is initialized which basically makes a call to another application (deployed as a different container), which has additional benefits compared to unmanaged secret provider.
 - If IKS_ENABLED is set to false, an unmanaged secret provider is initialized, which does not connect to any other application and supports very basic functionality.
 - Both secret providers first look for `ibm-credentials.env` in `ibm-cloud-credentials` k8s secret, if it is not present, `slclient.toml` in `storage-secret-store` is considered.
-- In the client code, you can pass an optional argument `your-own-key`. This option can be used, when you want to use a different key other than `ibm-credentials.env` in `ibm-cloud-credentials` or `slclient.toml` in `storage-secret-store`.
-- Note: Managed secret provider, does not support `your-own-key` as of now. It only considers the default keys `ibm-credentials.env` in `ibm-cloud-credentials` or `slclient.toml` in `storage-secret-store`.
+- In the client code, you can pass an optional argument `SecretKey` by the means of golang map. This option can be used, when you want to use a different key other than `ibm-credentials.env` in `ibm-cloud-credentials` or `slclient.toml` in `storage-secret-store`.
+- Note: Managed secret provider, does not support `SecretKey` as of now. It only considers the default keys `ibm-credentials.env` in `ibm-cloud-credentials` or `slclient.toml` in `storage-secret-store`. For usage, refer to client.go under client folder in this repository.
 - Note: Going forward, since storage-secret-store will be completely deprecated, only ibm-cloud-credentials will be used.
 
 ### Managed secret provider
