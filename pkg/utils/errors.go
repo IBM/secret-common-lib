@@ -31,4 +31,13 @@ const (
 
 	// ErrMultipleKeysUnsupported ...
 	ErrMultipleKeysUnsupported = "Mutiple secret keys are unsupported"
+
+	// ErrInvalidProviderType ...
+	ErrInvalidProviderType = "Invalid provider type given, expected values are vpc, bluemix, softlayer"
+
+	// ErrInvalidArgument ...
+	ErrInvalidArgument = "Invalid arguments provided in the map, Only ProviderType or SecretKey expected"
+
+	// ErrEmptySecretKeyProvided ...
+	ErrEmptySecretKeyProvided = "Provided secret key is empty"
 )

@@ -25,9 +25,15 @@ import (
 func main() {
 	// Initializing secret provider
 	// Pre requisites and behavior are mentioned in READ me.
-	// First argument is the provider type, which can be sp.VPC/sp.Bluemix/sp.Softlayer
-	// Note: The first argument is of use, only when storage-secret-store is used (so that api key can be fetched either VPC or Bluemix or Softlayer section in slclient.toml)
-	secretprovider, err := sp.NewSecretProvider(sp.VPC)
+
+	arg := map[string]string{
+		sp.ProviderType: sp.VPC,
+	}
+	// OR
+	//arg := map[string]string{
+	//	sp.SecretKey: "iam_api_key",
+	//}
+	secretprovider, err := sp.NewSecretProvider(arg)
 	// OR, you may also provide a key which is expected to be present the k8s secret - ibm-cloud-credentials/storage-secret-store
 	// secretprovider, err := sp.NewSecretProvider(sp.VPC, "your-key")
 
@@ -42,5 +48,5 @@ func main() {
 	fmt.Println(secretprovider.GetPrivateRIAASEndpoint(false))
 	fmt.Println(secretprovider.GetRIAASEndpoint(false))
 	fmt.Println(secretprovider.GetPrivateContainerAPIRoute(false))
-	fmt.Println(secretprovider.GetDefaultIAMToken("test", false))
+	fmt.Println(secretprovider.GetDefaultIAMToken(false, "test"))
 }

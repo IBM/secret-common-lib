@@ -45,18 +45,18 @@ type UnmanagedSecretProvider struct {
 }
 
 // newUnmanagedSecretProvider ...
-func newUnmanagedSecretProvider(logger *zap.Logger, providerType string, secretKey ...string) (*UnmanagedSecretProvider, error) {
+func newUnmanagedSecretProvider(logger *zap.Logger, optionalArgs ...map[string]string) (*UnmanagedSecretProvider, error) {
 	kc, err := k8s_utils.Getk8sClientSet(logger)
 	if err != nil {
 		logger.Info("Error fetching k8s client set", zap.Error(err))
 		return nil, err
 	}
-	return InitUnmanagedSecretProvider(logger, kc, providerType, secretKey...)
+	return InitUnmanagedSecretProvider(logger, kc, optionalArgs...)
 }
 
 // initUnmanagedSecretProvider ...
-func InitUnmanagedSecretProvider(logger *zap.Logger, kc k8s_utils.KubernetesClient, providerType string, secretKey ...string) (*UnmanagedSecretProvider, error) {
-	authenticator, authType, err := auth.NewAuthenticator(logger, kc, providerType, secretKey...)
+func InitUnmanagedSecretProvider(logger *zap.Logger, kc k8s_utils.KubernetesClient, optionalArgs ...map[string]string) (*UnmanagedSecretProvider, error) {
+	authenticator, authType, err := auth.NewAuthenticator(logger, kc, optionalArgs...)
 	if err != nil {
 		logger.Error("Error initializing unmanaged secret provider", zap.Error(err))
 		return nil, err
@@ -91,7 +91,14 @@ func InitUnmanagedSecretProvider(logger *zap.Logger, kc k8s_utils.KubernetesClie
 		return usp, nil
 	}
 
-	err = usp.initEndpointsUsingStorageSecretStore(providerType)
+	var providerName string
+	if len(optionalArgs) == 1 {
+		providerName, _ = optionalArgs[0][ProviderType]
+	}
+	if providerName == "" {
+		providerName = utils.VPC
+	}
+	err = usp.initEndpointsUsingStorageSecretStore(providerName)
 	if err != nil {
 		logger.Error("Error initializing secret provider")
 		return nil, utils.Error{Description: localutils.ErrInitSecretProvider, BackendError: err.Error()}
@@ -102,13 +109,13 @@ func InitUnmanagedSecretProvider(logger *zap.Logger, kc k8s_utils.KubernetesClie
 }
 
 // GetDefaultIAMToken ...
-func (usp *UnmanagedSecretProvider) GetDefaultIAMToken(reasonForCall string, isFreshTokenRequired bool) (string, uint64, error) {
+func (usp *UnmanagedSecretProvider) GetDefaultIAMToken(isFreshTokenRequired bool, reasonForCall ...string) (string, uint64, error) {
 	usp.logger.Info("In GetDefaultIAMToken()")
 	return usp.authenticator.GetToken(true)
 }
 
 // GetIAMToken ...
-func (usp *UnmanagedSecretProvider) GetIAMToken(reasonForCall, secret string, isFreshTokenRequired bool) (string, uint64, error) {
+func (usp *UnmanagedSecretProvider) GetIAMToken(secret string, isFreshTokenRequired bool, reasonForCall ...string) (string, uint64, error) {
 	usp.logger.Info("In GetIAMToken()")
 	var authenticator auth.Authenticator
 	switch usp.authType {
