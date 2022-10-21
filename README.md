@@ -211,6 +211,7 @@ volumes:
 - Support for multiple secrets - In a pod, with one secret sidecar, multiple other containers can use it, for different profiles or api keys (A limit needs to be mentioned in the deployment).
 - Deleting LRU secret - Given multiple applications are using secret sidecar, always the least recently used secret will not be stored in the cache. (Eg: If the limit for number of secrets is set to 3, and 4 different applications are using secret sidecar, with every call for fetching token, the least recently used secret is removed from cache). Always, the default secret fetched from ibm-cloud-credentials or storage-secret-store is always there in the cache.
 - A TOKEN_EXPIRY_DIFF can be set at the time of deployment. Usage - Given that it is set to 20m, always managed secret provider makes sure, the token provided has atleast 20 minutes of validity.
+- **Note**: With the latest version of this library, it is always recommended to upgrade to latest sidecar image too, though backward compatibility is ensured.
 
 
 ### Unmanaged secret provider
