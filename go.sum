@@ -37,8 +37,8 @@ github.com/BurntSushi/toml v1.0.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbi
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/IBM/go-sdk-core/v5 v5.9.1 h1:06pXbD9Rgmqqe2HA5YAeQbB4eYRRFgIoOT+Kh3cp1zo=
 github.com/IBM/go-sdk-core/v5 v5.9.1/go.mod h1:axE2JrRq79gIJTjKPBwV6gWHswvVptBjbcvvCPIxARM=
-github.com/IBM/secret-utils-lib v1.1.1-0.20221202041524-6ab14b113e03 h1:Oh3H8rErEa9wdi9aW3O0+yaQL2AfliAwc/m09QUIp1c=
-github.com/IBM/secret-utils-lib v1.1.1-0.20221202041524-6ab14b113e03/go.mod h1:Yfla8xgZ938htp3tgw1NVYPKa8UOGq3QcRIpBE3gLgU=
+github.com/IBM/secret-utils-lib v1.1.1-0.20221216092303-7080a26cfe71 h1:v4NrgOfTefYfcWjcnlk20E4y/PlLOBPWRyftDQ+5JZc=
+github.com/IBM/secret-utils-lib v1.1.1-0.20221216092303-7080a26cfe71/go.mod h1:Yfla8xgZ938htp3tgw1NVYPKa8UOGq3QcRIpBE3gLgU=
 github.com/PuerkitoBio/purell v1.1.1 h1:WEQqlqaGbrPkxLJWfBwQmfEAE1Z7ONdDLqrN38tNFfI=
 github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 h1:d+Bc7a5rLufV/sSk/8dngufqelfh6jnri85riMAaF/M=
