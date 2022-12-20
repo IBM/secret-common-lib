@@ -3,7 +3,7 @@ module github.com/IBM/secret-common-lib
 go 1.18
 
 require (
-	github.com/IBM/secret-utils-lib v1.1.0
+	github.com/IBM/secret-utils-lib v1.1.1
 	go.uber.org/zap v1.20.0
 	google.golang.org/grpc v1.47.0
 )
