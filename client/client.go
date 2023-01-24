@@ -26,7 +26,7 @@ func main() {
 	// Initializing secret provider
 	// Pre requisites and behavior are mentioned in READ me.
 
-	arg := map[string]string{
+	arg := map[string]interface{}{
 		sp.ProviderType: sp.VPC,
 	}
 	// OR
