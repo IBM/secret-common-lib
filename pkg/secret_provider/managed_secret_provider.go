@@ -50,7 +50,7 @@ type ManagedSecretProvider struct {
 // newManagedSecretProvider ...
 func newManagedSecretProvider(logger *zap.Logger, optionalArgs ...string) (*ManagedSecretProvider, error) {
 	logger.Info("Connecting to sidecar")
-	kc, err := k8s_utils.Getk8sClientSet(logger)
+	kc, err := k8s_utils.Getk8sClientSet()
 	if err != nil {
 		logger.Info("Error fetching k8s client set", zap.Error(err))
 		return nil, err
