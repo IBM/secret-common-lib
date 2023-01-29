@@ -3,7 +3,8 @@ module github.com/IBM/secret-common-lib
 go 1.18
 
 require (
-	github.com/IBM/secret-utils-lib v1.1.2-0.20230126205657-f30b56d8a191
+	github.com/IBM/secret-utils-lib v1.1.2-0.20230129232900-2c013a1ff593
+	github.com/go-playground/validator/v10 v10.11.1
 	go.uber.org/zap v1.20.0
 	google.golang.org/grpc v1.47.0
 )
@@ -25,7 +26,6 @@ require (
 	github.com/go-openapi/swag v0.19.14 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
-	github.com/go-playground/validator/v10 v10.11.1 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
