@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	sp "github.com/IBM/secret-common-lib/pkg/secret_provider"
+	"github.com/IBM/secret-utils-lib/pkg/k8s_utils"
 )
 
 func main() {
@@ -33,7 +34,18 @@ func main() {
 	//arg := map[string]string{
 	//	sp.SecretKey: "iam_api_key",
 	//}
-	secretprovider, err := sp.NewSecretProvider(arg)
+
+	// For the client code to work, initialise a fake k8s client
+	/*
+		k8sClient, _ := k8s_utils.FakeGetk8sClientSet()
+		pwd, _ := os.Getwd()
+		secretDataPath := filepath.Join(pwd, "..", "test-fixtures/secrets/storage-secret-store", "slclient.toml")
+		_ = k8s_utils.FakeCreateSecret(k8sClient, "DEFAULT", secretDataPath)
+	*/
+
+	// For real time scenarios, the following can be done
+	k8sClient, _ := k8s_utils.Getk8sClientSet()
+	secretprovider, err := sp.NewSecretProvider(&k8sClient, arg)
 	// OR, you may also provide a key which is expected to be present the k8s secret - ibm-cloud-credentials/storage-secret-store
 	// secretprovider, err := sp.NewSecretProvider(sp.VPC, "your-key")
 
