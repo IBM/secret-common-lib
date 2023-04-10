@@ -89,7 +89,9 @@ func InitUnmanagedSecretProvider(logger *zap.Logger, kc k8s_utils.KubernetesClie
 	usp.authType = authType
 	usp.k8sClient = kc
 
-	err = usp.initEndpointsUsingCloudConf()
+	isSatellite, _ := config.IsSatellite(kc, logger)
+
+	err = usp.initEndpointsUsingCloudConf(isSatellite)
 	if err == nil {
 		logger.Info("Initialized unmanaged secret provider")
 		return usp, nil
@@ -102,7 +104,7 @@ func InitUnmanagedSecretProvider(logger *zap.Logger, kc k8s_utils.KubernetesClie
 	if providerName == "" {
 		providerName = utils.VPC
 	}
-	err = usp.initEndpointsUsingStorageSecretStore(providerName)
+	err = usp.initEndpointsUsingStorageSecretStore(isSatellite, providerName)
 	if err != nil {
 		logger.Error("Error initializing secret provider")
 		return nil, utils.Error{Description: localutils.ErrInitSecretProvider, BackendError: err.Error()}
@@ -212,7 +214,7 @@ func (usp *UnmanagedSecretProvider) GetResourceGroupID() string {
 }
 
 // initEndpointsUsingCloudConf ...
-func (usp *UnmanagedSecretProvider) initEndpointsUsingCloudConf() error {
+func (usp *UnmanagedSecretProvider) initEndpointsUsingCloudConf(isSatellite bool) error {
 	cloudConf, err := config.GetCloudConf(usp.logger, usp.k8sClient)
 	if err != nil {
 		return err
@@ -232,7 +234,7 @@ func (usp *UnmanagedSecretProvider) initEndpointsUsingCloudConf() error {
 	}
 
 	usp.logger.Info("Token exchange URL not provided in cloud-conf, framing using cluster-info")
-	tokenExchangeURL, err := frameTokenExchangeURL(usp.k8sClient, usp.logger)
+	tokenExchangeURL, err := frameTokenExchangeURL(isSatellite, usp.k8sClient, usp.logger)
 	if err != nil {
 		usp.logger.Error("Error forming token exchange URL from cluster-info", zap.Error(err))
 		return utils.Error{Description: localutils.ErrInitSecretProvider, BackendError: "Unable to fetch token exchange URL"}
@@ -244,7 +246,7 @@ func (usp *UnmanagedSecretProvider) initEndpointsUsingCloudConf() error {
 }
 
 // initEndpointsUsingStorageSecretStore ...
-func (usp *UnmanagedSecretProvider) initEndpointsUsingStorageSecretStore(providerType string) error {
+func (usp *UnmanagedSecretProvider) initEndpointsUsingStorageSecretStore(isSatellite bool, providerType string) error {
 	data, err := k8s_utils.GetSecretData(usp.k8sClient, utils.STORAGE_SECRET_STORE_SECRET, utils.SECRET_STORE_FILE)
 	var conf *config.Config
 	if err == nil {
@@ -257,7 +259,7 @@ func (usp *UnmanagedSecretProvider) initEndpointsUsingStorageSecretStore(provide
 		usp.riaasEndpoint = conf.VPC.G2EndpointURL
 		usp.privateRIAASEndpoint = conf.VPC.G2EndpointPrivateURL
 		usp.resourceGroupID = conf.VPC.G2ResourceGroupID
-		tokenExchangeURL, err := config.GetTokenExchangeURLfromStorageSecretStore(*conf, providerType)
+		tokenExchangeURL, err := config.GetTokenExchangeURLfromStorageSecretStore(isSatellite, *conf, providerType)
 		if err == nil {
 			usp.tokenExchangeURL = tokenExchangeURL
 			usp.authenticator.SetURL(tokenExchangeURL)
@@ -266,7 +268,7 @@ func (usp *UnmanagedSecretProvider) initEndpointsUsingStorageSecretStore(provide
 	}
 
 	usp.logger.Info("Unable to fetch token exchange URL from storage-secret-store")
-	tokenExchangeURL, err := frameTokenExchangeURL(usp.k8sClient, usp.logger)
+	tokenExchangeURL, err := frameTokenExchangeURL(isSatellite, usp.k8sClient, usp.logger)
 	if err != nil {
 		usp.logger.Error("Error forming token exchange URL from cluster-info", zap.Error(err))
 		return err
