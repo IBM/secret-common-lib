@@ -18,6 +18,7 @@ package secret_provider
 
 import (
 	"encoding/base64"
+	"fmt"
 	"os"
 	"strings"
 
@@ -88,7 +89,7 @@ func InitUnmanagedSecretProvider(logger *zap.Logger, kc k8s_utils.KubernetesClie
 	usp.logger = logger
 	usp.authType = authType
 	usp.k8sClient = kc
-
+	defer printURL(usp)
 	err = usp.initEndpointsUsingCloudConf()
 	// If token exchange URL is also initialised using cloud conf, return.
 	if usp.tokenExchangeURL != "" {
@@ -121,6 +122,14 @@ func InitUnmanagedSecretProvider(logger *zap.Logger, kc k8s_utils.KubernetesClie
 	logger.Info("Framed token exhange URL from cluster info")
 	logger.Info("Initialized unmanaged secret provider")
 	return usp, nil
+}
+
+func printURL(usp *UnmanagedSecretProvider) {
+	fmt.Println("-----------------")
+	if usp != nil {
+		fmt.Println("-----------------")
+		fmt.Println(usp.tokenExchangeURL)
+	}
 }
 
 // GetDefaultIAMToken ...
