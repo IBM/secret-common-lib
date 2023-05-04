@@ -235,7 +235,7 @@ func (usp *UnmanagedSecretProvider) initEndpointsUsingCloudConf() error {
 	usp.riaasEndpoint = cloudConf.RiaasEndpoint
 	usp.privateRIAASEndpoint = cloudConf.PrivateRIAASEndpoint
 	usp.resourceGroupID = cloudConf.ResourceGroupID
-	usp.logger.Info("Initialised endpoints using ")
+	usp.logger.Info("Initialised endpoints using cloud-conf")
 	if cloudConf.TokenExchangeURL != "" {
 		usp.logger.Info("Using the token exchange URL provided in cloud-conf")
 		usp.tokenExchangeURL = cloudConf.TokenExchangeURL
