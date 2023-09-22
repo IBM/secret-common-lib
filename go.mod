@@ -3,7 +3,7 @@ module github.com/IBM/secret-common-lib
 go 1.18
 
 require (
-	github.com/IBM/secret-utils-lib v1.1.5
+	github.com/IBM/secret-utils-lib v1.1.6
 	github.com/go-playground/validator/v10 v10.11.1
 	go.uber.org/zap v1.20.0
 	google.golang.org/grpc v1.47.0
@@ -63,7 +63,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/api v0.26.1 // indirect
 	k8s.io/apimachinery v0.26.1 // indirect
-	k8s.io/client-go v0.0.0-00010101000000-000000000000 // indirect
+	k8s.io/client-go v0.26.1 // indirect
 	k8s.io/klog/v2 v2.80.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20221012153701-172d655c2280 // indirect
 	k8s.io/utils v0.0.0-20221107191617-1a15be271d1d // indirect
