@@ -5,8 +5,8 @@ github.com/BurntSushi/toml v1.0.0 h1:dtDWrepsVPfW9H/4y7dDgFc2MBUSeJhlaDtK13CxFlU
 github.com/BurntSushi/toml v1.0.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/IBM/go-sdk-core/v5 v5.9.1 h1:06pXbD9Rgmqqe2HA5YAeQbB4eYRRFgIoOT+Kh3cp1zo=
 github.com/IBM/go-sdk-core/v5 v5.9.1/go.mod h1:axE2JrRq79gIJTjKPBwV6gWHswvVptBjbcvvCPIxARM=
-github.com/IBM/secret-utils-lib v1.1.8 h1:lepjOeYFFhUvihVIO4oVcL+RQ/vyv866NoUdt3j5Q80=
-github.com/IBM/secret-utils-lib v1.1.8/go.mod h1:SuhZBobjNUxOPrP7gf5OmD0vJhUlNVLXIpxn1ZOGiow=
+github.com/IBM/secret-utils-lib v1.1.9 h1:94M2pWLBdrA6pFESI5x6umXZtMr6+VC8vz6kYs+/P/g=
+github.com/IBM/secret-utils-lib v1.1.9/go.mod h1:SuhZBobjNUxOPrP7gf5OmD0vJhUlNVLXIpxn1ZOGiow=
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
 github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef h1:46PFijGLmAjMPwCCCo7Jf0W6f9slllCkkv7vyc1yOSg=
 github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef/go.mod h1:WaHUgvxTVq04UNunO+XhnAqY/wQc+bxr74GqbsZ/Jqw=
