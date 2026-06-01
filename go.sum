@@ -5,8 +5,8 @@ github.com/BurntSushi/toml v1.0.0 h1:dtDWrepsVPfW9H/4y7dDgFc2MBUSeJhlaDtK13CxFlU
 github.com/BurntSushi/toml v1.0.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/IBM/go-sdk-core/v5 v5.17.4 h1:VGb9+mRrnS2HpHZFM5hy4J6ppIWnwNrw0G+tLSgcJLc=
 github.com/IBM/go-sdk-core/v5 v5.17.4/go.mod h1:KsAAI7eStAWwQa4F96MLy+whYSh39JzNjklZRbN/8ns=
-github.com/IBM/secret-utils-lib v1.1.16-0.20260428134227-f2f888ea0a61 h1:Z6LKRrJYU6+3/98dQhf9NCBqHxgGx0f4fUHHpKlSH7c=
-github.com/IBM/secret-utils-lib v1.1.16-0.20260428134227-f2f888ea0a61/go.mod h1:lKmp4uLZ89CgQavH0DwfBpie38fj3SRKV+yEMsacZd8=
+github.com/IBM/secret-utils-lib v1.1.16 h1:RIainy11ICJVWjgi9FWSvBsl8xOwhzLvTKBI8AWq7wI=
+github.com/IBM/secret-utils-lib v1.1.16/go.mod h1:lSoMdjyGd3MVWCsPRrr25KrVz4jsxBNtfkS9xvQYhoM=
 github.com/Masterminds/semver/v3 v3.4.0 h1:Zog+i5UMtVoCU8oKka5P7i9q9HgrJeGzI9SA1Xbatp0=
 github.com/Masterminds/semver/v3 v3.4.0/go.mod h1:4V+yj/TJE1HU9XfppCwVMZq3I84lprf4nC11bSS5beM=
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=

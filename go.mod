@@ -1,9 +1,9 @@
 module github.com/IBM/secret-common-lib
 
-go 1.25.9
+go 1.25.10
 
 require (
-	github.com/IBM/secret-utils-lib v1.1.16-0.20260428134227-f2f888ea0a61
+	github.com/IBM/secret-utils-lib v1.1.16
 	github.com/go-playground/validator/v10 v10.19.0
 	go.uber.org/zap v1.20.0
 	google.golang.org/grpc v1.47.0
